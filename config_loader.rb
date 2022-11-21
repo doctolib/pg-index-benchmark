@@ -19,11 +19,11 @@ class ConfigLoader
   end
 
   def common_indexes
-    @config['common_indexes']
+    @config['common_indexes'] || []
   end
 
   def scenarios
-    @config['scenarios']
+    @config['scenarios'] || []
   end
 
   def table_name
@@ -31,10 +31,12 @@ class ConfigLoader
   end
 
   def check
+    puts 'Warning: no common_indexes are defined in config file' unless common_indexes
+    puts 'Warning: no indexes are defined for reference scenario in config file' unless scenarios['reference']
     raise 'Config: Missing table_name at root level' unless table_name
-    raise 'Config: Missing common_indexes' unless common_indexes
+
     raise 'Config: Missing scenarios' unless scenarios
-    raise 'Config: Missing reference scenario' unless scenarios['reference']
+
     raise 'Config: Provide alternatives to the reference scenario' unless scenarios.size
   end
 end
