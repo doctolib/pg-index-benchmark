@@ -3,6 +3,7 @@ class ConfigLoader
   attr_accessor :input_file_path,
                 :only_query_fingerprint,
                 :query_prerun_count,
+                :max_queries_per_scenario,
                 :db_host,
                 :db_port,
                 :db_name,

@@ -53,6 +53,12 @@ parser =
       '--config=config_file.yml',
       'Specify the config file instead of config_file.yml',
     ) { |config_path| options[:config_path] = config_path }
+
+    parser.on(
+      '-m n',
+      '--max-queries-per-scenario=n',
+      'Specify the max queries to run per scenario. If this amount is reached further queries will be ignored',
+      ) { |n| options[:max_queries_per_scenario] = n }
   end
 
 other_args = parser.parse!
@@ -63,6 +69,7 @@ raise 'Missing input_file' if input_file_path.blank?
 config = ConfigLoader.new(options[:config_path] || 'config.yml')
 config.input_file_path = input_file_path
 config.query_prerun_count = options[:times] || 0
+config.max_queries_per_scenario = options[:max_queries_per_scenario]&.to_i || 500
 config.only_query_fingerprint = options[:only_query_fingerprint] if options[:only_query_fingerprint]
 
 config.check

@@ -32,6 +32,7 @@ class IndexBenchmarkTool
       query_prerun_count
       only_query_fingerprint
       input_file_path
+      max_queries_per_scenario
     ].each { |field| instance_variable_set("@#{field}", config.send(field)) }
   end
 
@@ -200,6 +201,7 @@ class IndexBenchmarkTool
   end
 
   def benchmark(scenario, only_query_text = nil)
+    puts
     puts "- Playing scenario: #{scenario}"
     connection.exec('BEGIN')
 
@@ -214,7 +216,13 @@ class IndexBenchmarkTool
 
     if only_query_text.nil?
       @queries_run_in_scenario = 0
-      QueryFileReader.new(@input_file_path).parse { |query| run_query_for_scenario(scenario, query, :json) }
+      QueryFileReader.new(@input_file_path).parse do |query|
+        if @queries_run_in_scenario > @max_queries_per_scenario
+          puts "Max queries per scenario (#{@max_queries_per_scenario}) reached. Other queries are ignored"
+          return
+        end
+        run_query_for_scenario(scenario, query, :json)
+      end
     else
       puts only_query_text
       run_query_for_scenario(scenario, only_query_text, :raw)
@@ -225,7 +233,6 @@ class IndexBenchmarkTool
   end
 
   def run_query_for_scenario(scenario, query_text, format = :json)
-    return if @queries_run_in_scenario > 500
     return unless PgQuery.parse(query_text).tables.include?(@table_name)
     @queries_run_in_scenario += 1
     puts "Run #{@queries_run_in_scenario} queries..." if @queries_run_in_scenario % 50 == 0
