@@ -3,48 +3,9 @@
 require 'optparse'
 require_relative 'index_benchmark_tool'
 require_relative 'query_file_reader'
+require_relative 'config_loader'
 require 'active_support'
 require 'yaml'
-
-class ConfigLoader
-  attr_accessor :input_file_path,
-                :only_query_fingerprint,
-                :query_prerun_count,
-                :db_host,
-                :db_port,
-                :db_name,
-                :db_user,
-                :db_password
-  def initialize(config_path)
-    @config = YAML.load_file(config_path)
-
-    @db_host = ENV.fetch('POSTGRES_HOST', 'localhost')
-    @db_port = ENV.fetch('POSTGRES_PORT', '5432')
-    @db_name = ENV.fetch('POSTGRES_DATABASE', 'postgres')
-    @db_user = ENV.fetch('POSTGRES_USER', 'postgres')
-    @db_password = ENV.fetch('POSTGRES_PASSWORD', nil)
-  end
-
-  def common_indexes
-    @config['common_indexes']
-  end
-
-  def scenarios
-    @config['scenarios']
-  end
-
-  def table_name
-    @config['table_name']
-  end
-
-  def check
-    raise 'Config: Missing table_name at root level' unless table_name
-    raise 'Config: Missing common_indexes' unless common_indexes
-    raise 'Config: Missing scenarios' unless scenarios
-    raise 'Config: Missing reference scenario' unless scenarios['reference']
-    raise 'Config: Provide alternatives to the reference scenario' unless scenarios.size
-  end
-end
 
 options = { mode: :benchmark }
 parser =
