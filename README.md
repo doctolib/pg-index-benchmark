@@ -80,6 +80,84 @@ If you need to access a pg in a docker, you can use these options:
 --link docker_container_name --network docker_network_name
 ```
 
+## Examples
+
+Standard execution:
+```text
+- Playing scenario: reference
+  - Adding indexes to reference: foo_value_idx
+  - Dropping 1 indexes: foo_value_idx1
+
+- Playing scenario: other_index
+  - Adding indexes to reference: foo_value_idx1
+  - Dropping 1 indexes: foo_value_idx
+
+----------------------------------------------------
+Query 23a71521e8c118fdb9e9f7c5259dff7c79e5c54e:
+select * from foo where value between 100 and 150;
+
+Actual Total Time:
+  reference    7.234
+  other_index  0.013 ✅
+
+Total Cost:
+  reference    2041.0
+  other_index  11.97 ✅
+
+Shared Hit Blocks:
+  reference    541
+  other_index  10 ✅
+
+Shared Read Blocks:
+  reference    0
+  other_index  0 ✅
+
+Actual Rows:
+  reference    5
+  other_index  5 ✅
+
+Used indexes:
+  reference    
+  other_index  foo_value_idx1
+
+For these queries each scenario was using the same indexes: cf4073b3fd4ad51cf1b486b575412d63002e44fc 8b5a89bad53abe39bbc4a4fbeff2b1970d1adcee
+```
+
+Detailed view for a specific query:
+```text
+Full details for query 23a71521e8c118fdb9e9f7c5259dff7c79e5c54e
+- Playing scenario: reference
+  - Adding indexes to reference: foo_value_idx
+  - Dropping 1 indexes: foo_value_idx1
+select * from foo where value between 100 and 150;
+
+- Playing scenario: other_index
+  - Adding indexes to reference: foo_value_idx1
+  - Dropping 1 indexes: foo_value_idx
+select * from foo where value between 100 and 150;
+
+---- Plan for reference ----
+Seq Scan on public.foo  (cost=0.00..2041.00 rows=2 width=12) (actual time=1.451..7.254 rows=5 loops=1)
+        Output: id, value
+        Filter: ((foo.value >= 100) AND (foo.value <= 150))
+        Rows Removed by Filter: 99995
+        Buffers: shared hit=541
+      Planning Time: 0.113 ms
+      Execution Time: 7.259 ms
+
+---- Plan for other_index ----
+Bitmap Heap Scan on public.foo  (cost=4.31..11.97 rows=2 width=12) (actual time=0.010..0.014 rows=5 loops=1)
+        Output: id, value
+        Recheck Cond: ((foo.value >= 100) AND (foo.value <= 150))
+        Heap Blocks: exact=5
+        Buffers: shared hit=10
+        ->  Bitmap Index Scan on foo_value_idx1  (cost=0.00..4.30 rows=2 width=0) (actual time=0.008..0.008 rows=5 loops=1)
+              Index Cond: ((foo.value >= 100) AND (foo.value <= 150))
+              Buffers: shared hit=5
+      Planning Time: 0.095 ms
+      Execution Time: 0.020 ms
+```
+
 ## How it works?
 
 `DROP INDEX` instructions are transactional. Thanks to that, we can drop some indexes, get the execution plan of a list of queries, revert, and try again the same queries with other indexes.
@@ -89,3 +167,4 @@ In other words, for each scenario:
 - it drops all indexes that are not eligible for the scenario
 - it extracts the execution plan for all the select queries
 - it rollbacks
+
