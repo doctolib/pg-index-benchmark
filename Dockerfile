@@ -9,7 +9,7 @@ COPY ./Gemfile.lock .
 
 RUN bundle install
 
-COPY ./index_benchmark.rb .
+COPY ./run.rb .
 COPY ./index_benchmark_tool.rb .
 COPY ./query_file_reader.rb .
 COPY ./config_loader.rb .
