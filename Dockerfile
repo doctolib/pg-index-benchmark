@@ -4,8 +4,8 @@ RUN bundle config --global frozen 1
 
 WORKDIR /usr/src/app
 
-COPY ./benchmark_tool/Gemfile .
-COPY ./benchmark_tool/Gemfile.lock .
+COPY ./Gemfile .
+COPY ./Gemfile.lock .
 
 RUN bundle install
 
