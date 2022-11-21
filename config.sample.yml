@@ -1,0 +1,12 @@
+table_name: my_table
+common_indexes:
+  - first_index
+  - second_index
+scenarios:
+  reference:
+    - third_index
+  first_scenario:
+    - index_candidate
+  second_scenario:
+    - partial_index
+    - other_partial_index
