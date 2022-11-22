@@ -1,17 +1,13 @@
 FROM ruby:3.1.2
 
-RUN bundle config --global frozen 1
-
 WORKDIR /usr/src/app
 
-COPY ./Gemfile .
-COPY ./Gemfile.lock .
+ADD Gemfile Gemfile.lock /usr/src/app/
 
+RUN bundle config --global frozen 1
 RUN bundle install
 
-COPY ./run.rb .
-COPY ./index_benchmark_tool.rb .
-COPY ./query_file_reader.rb .
-COPY ./config_loader.rb .
+ADD run.rb index_benchmark_tool.rb query_file_reader.rb config_loader.rb /usr/src/app/
 
-CMD ["./index_benchmark.rb", "-h"]
+ENTRYPOINT ["/usr/src/app/run.rb"]
+CMD ["-h"]

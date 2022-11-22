@@ -64,14 +64,14 @@ Don't run it in production as it would block other DDL.
 
 ```shell
 bundle install
-POSTGRES_DATABASE=mydb POSTGRES_USER=$USER ./run.rb -c /host_files/index_benchmark.yml /host_files/queries.txt
+POSTGRES_DATABASE=mydb POSTGRES_USER=$USER -c /host_files/index_benchmark.yml /host_files/queries.txt
 ```
 
 #### With docker
 
 ```shell
-docker build -t benchmark_tool
-docker run -v $PWD:/host_files --rm -e POSTGRES_DATABASE=mydb -e POSTGRES_USER=$USER -e POSTGRES_HOST=myhost benchmark_tool ./run.rb -c /host_files/config.yml /host_files/queries.txt
+docker build -t benchmark_tool .
+docker run -v $PWD:/host_files --rm -e POSTGRES_DATABASE=mydb -e POSTGRES_USER=$USER -e POSTGRES_HOST=myhost benchmark_tool -c /host_files/config.yml /host_files/queries.txt
 ```
 
 Note:
