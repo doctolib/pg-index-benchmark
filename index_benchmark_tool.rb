@@ -94,7 +94,7 @@ class IndexBenchmarkTool
     end
     @scenarios.each_key { |scenario_key| benchmark(scenario_key, related_query) }
 
-    self
+    report
   end
 
   def report
@@ -157,6 +157,7 @@ class IndexBenchmarkTool
   def used_indexes(execution_plan)
     execution_plan.scan(/"Index Name"=>"(\w+)"/)
   end
+
   def strings_in_columns(column1, column2)
     @column_length ||= @scenarios.keys.map(&:length).max + 1
     "  #{column1.to_s.ljust(@column_length, ' ')} #{column2}"
@@ -195,6 +196,7 @@ class IndexBenchmarkTool
     result = connection.exec("select indexname from pg_indexes where tablename = '#{table_name}'")
     result.values.map(&:first)
   end
+
   def drop_indexes(indexes)
     puts "  - Dropping #{indexes.size} indexes: #{indexes.join(' ')}"
     indexes.each { |index| connection.exec("DROP INDEX IF EXISTS \"#{index}\"") }

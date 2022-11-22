@@ -72,4 +72,4 @@ config.only_query_fingerprint = options[:only_query_fingerprint] if options[:onl
 config.check
 benchmark_tool = IndexBenchmarkTool.new(config)
 
-options[:mode] == :deduplicate ? benchmark_tool.deduplicate : benchmark_tool.run_benchmark.report
+options[:mode] == :deduplicate ? benchmark_tool.deduplicate : benchmark_tool.run_benchmark

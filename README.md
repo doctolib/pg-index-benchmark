@@ -30,7 +30,14 @@ If you want to try indexes that are not currently in production, create all of t
 
 ### Extract a representative set of queries
 
-Extract queries from your production that could cover most of the cases. Note that queries will be ignored if they are not using the table defined in `table_name` in your configuration file.
+Extract queries from your production that could cover most of the cases. Note that queries will be ignored if they are not using the table defined in `table_name` in your configuration file. This file should be provided as an argument of the command.
+
+To extract these queries, you could for example enable logs in your PG server and tune these config variables:
+- `log_statement` to enable all logs
+- `log_statement_sample_rate` to introduce some sampling and avoid too many queries
+And then extract queries by downloading logs.
+
+[Pgbadger](https://pgbadger.darold.net/) could also help you to extract queries from the raw logs.
 
 ### Define scenarios
 
@@ -40,7 +47,11 @@ The reference scenario is the first scenario to be executed. It represents the i
 
 All other scenarios will be compared to this reference scenario.
 
+These scenarios should be define in your `config.yml` file (or use `-c` options to use an other file).
+You can find an example in `config.sample.yml`
+
 ```yml
+#config.yml example
 - table_name: name_of_the_table_containing_the_indexes
 - common_indexes:
     - index1_that_should_be_present_on_each_scenario
@@ -61,6 +72,7 @@ First run it in your local environment to understand how it works.
 Don't believe the results when using a database that does not have the appropriate dataset.
 Don't run it in production as it would block other DDL.
 #### Without docker
+First install ruby 3.1.2, then:
 
 ```shell
 bundle install
