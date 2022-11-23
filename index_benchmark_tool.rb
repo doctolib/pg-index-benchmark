@@ -81,8 +81,6 @@ class IndexBenchmarkTool
   def run_benchmark
     related_query = nil
     if @only_query_fingerprint
-      puts "Full details for query #{@only_query_fingerprint}"
-
       QueryFileReader
         .new(@input_file_path)
         .parse do |query|
@@ -90,7 +88,9 @@ class IndexBenchmarkTool
           next if fingerprint != @only_query_fingerprint
           related_query = query
           break
-        end
+      end
+      raise "Could not run only query #{@only_query_fingerprint}. Query not found in #{@input_file_path}" if related_query.nil?
+      puts "Full details for query #{@only_query_fingerprint}: #{related_query}"
     end
     @scenarios.each_key { |scenario_key| benchmark(scenario_key, related_query) }
 
@@ -111,6 +111,7 @@ class IndexBenchmarkTool
     unless @not_impacted_queries.empty?
       puts "For these queries each scenario was using the same indexes: #{@not_impacted_queries.join(' ')}\n"
     end
+    puts "\nTo get the detailed execution plan for a specific query, use '-q QUERY_ID'"
   end
 
   private
@@ -179,7 +180,7 @@ class IndexBenchmarkTool
   end
 
   def json_plan(query)
-    @query_prerun_count.to_i.times { connection.exec(query) }
+    @query_prerun_count.times { connection.exec(query) }
     json_plan = connection.exec("EXPLAIN (FORMAT JSON, ANALYZE, BUFFERS, VERBOSE) #{query}").first.first[1]
     JSON.parse(json_plan).first['Plan']
   end
@@ -203,8 +204,7 @@ class IndexBenchmarkTool
   end
 
   def benchmark(scenario, only_query_text = nil)
-    puts
-    puts "- Playing scenario: #{scenario}"
+    puts "\n- Playing scenario: #{scenario}"
     connection.exec('BEGIN')
 
     scenario_indexes_to_keep = @scenarios[scenario]
@@ -217,6 +217,8 @@ class IndexBenchmarkTool
     drop_indexes(index_to_drop)
 
     if only_query_text.nil?
+      message = @query_prerun_count > 0 ? "  - Running queries (#{@query_prerun_count} times each)..." : "- Running queries..."
+      puts message
       @queries_run_in_scenario = 0
       QueryFileReader.new(@input_file_path).parse do |query|
         if @queries_run_in_scenario > @max_queries_per_scenario
@@ -225,19 +227,25 @@ class IndexBenchmarkTool
         end
         run_query_for_scenario(scenario, query, :json)
       end
+      puts "  - #{@queries_run_in_scenario} queries run"
     else
-      puts only_query_text
       run_query_for_scenario(scenario, only_query_text, :raw)
     end
-    puts
   ensure
     connection.exec('ROLLBACK')
   end
 
   def run_query_for_scenario(scenario, query_text, format = :json)
-    return unless PgQuery.parse(query_text).tables.include?(@table_name)
+    tables = PgQuery.parse(query_text).tables
+    unless tables.include?(@table_name)
+      puts "Ignoring query not using #{@table_name}: #{query_text}" if scenario == 'reference'
+      return
+    end
     @queries_run_in_scenario += 1
-    puts "Run #{@queries_run_in_scenario} queries..." if @queries_run_in_scenario % 50 == 0
+
+    # Show progression every 50 queries
+    puts "... #{@queries_run_in_scenario} queries run" if @queries_run_in_scenario % 50 == 0
+
     fingerprint = fingerprint(query_text)
     @queries_by_fingerprint[fingerprint] = query_text unless @queries_by_fingerprint.key?(fingerprint)
     plan =
@@ -260,8 +268,7 @@ class IndexBenchmarkTool
       emoji = alternative_result.to_f > reference.to_f ? '❌️' : '✅'
       alternative_results << strings_in_columns(alternative_key, "#{alternative_result} #{emoji}")
     end
-    puts
-    puts "#{field}:"
+    puts "\n#{field}:"
     puts strings_in_columns('reference', reference)
     alternative_results.each { |r| puts r }
   end
