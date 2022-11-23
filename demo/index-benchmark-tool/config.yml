@@ -1,0 +1,11 @@
+table_name: book
+common_indexes:
+  - book_pkey
+scenarios:
+  reference:
+    - book_title_available_idx
+    - book_price_idx
+  expr_available_is_true:
+    - book_available_is_expr_idx
+  partial_idx:
+    - book_price_partial_idx

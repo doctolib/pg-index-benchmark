@@ -67,7 +67,15 @@ scenarios:
         - other_candidate
 ```
 
-### How to run it
+### Demo
+A demo is included in this project. It creates a database with its dataset and compares some indexes.
+To run the demo:
+```bash
+    docker-compose -f docker-compose.demo.yml build
+    docker compose -f docker-compose.demo.yml up --abort-on-container-exit --remove-orphans
+```
+
+### Real usage
 First run it in your local environment to understand how it works.
 Don't believe the results when using a database that does not have the appropriate dataset.
 Don't run it in production as it would block other DDL.
@@ -97,77 +105,65 @@ If you need to access a pg in a docker, you can use these options:
 Standard execution:
 ```text
 - Playing scenario: reference
-  - Adding indexes to reference: foo_value_idx
-  - Dropping 1 indexes: foo_value_idx1
+Connecting to postgres@db:5432/postgres ...
+  - Adding indexes to reference: book_title_available_idx book_price_idx
+  - Dropping 2 indexes: book_price_partial_idx book_available_is_expr_idx
+  - Running queries (5 times each)...
+  - 4 queries run
 
-- Playing scenario: other_index
-  - Adding indexes to reference: foo_value_idx1
-  - Dropping 1 indexes: foo_value_idx
-
+...
 ----------------------------------------------------
-Query 23a71521e8c118fdb9e9f7c5259dff7c79e5c54e:
-select * from foo where value between 100 and 150;
+Query f3d04a7ce3a94648ce541d2660b25a322f625795:
+SELECT title FROM book WHERE available IS true;
 
 Actual Total Time:
-  reference    7.234
-  other_index  0.013 ✅
+  reference               137.405
+  partial_idx             72.788 ✅
 
 Total Cost:
-  reference    2041.0
-  other_index  11.97 ✅
+  reference               35729.0
+  partial_idx             23189.97 ✅
 
 Shared Hit Blocks:
-  reference    541
-  other_index  10 ✅
+  reference               928
+  partial_idx             16074 ❌️
 
 Shared Read Blocks:
-  reference    0
-  other_index  0 ✅
+  reference               14801
+  partial_idx             0 ✅
 
 Actual Rows:
-  reference    5
-  other_index  5 ✅
+  reference               400004
+  partial_idx             400004 ✅
 
 Used indexes:
-  reference    
-  other_index  foo_value_idx1
-
-For these queries each scenario was using the same indexes: cf4073b3fd4ad51cf1b486b575412d63002e44fc 8b5a89bad53abe39bbc4a4fbeff2b1970d1adcee
+  reference               
+  partial_idx             book_price_partial_idx
+Not impacted scenarios: expr_available_is_true
 ```
 
 Detailed view for a specific query:
 ```text
-Full details for query 23a71521e8c118fdb9e9f7c5259dff7c79e5c54e
-- Playing scenario: reference
-  - Adding indexes to reference: foo_value_idx
-  - Dropping 1 indexes: foo_value_idx1
-select * from foo where value between 100 and 150;
-
-- Playing scenario: other_index
-  - Adding indexes to reference: foo_value_idx1
-  - Dropping 1 indexes: foo_value_idx
-select * from foo where value between 100 and 150;
-
 ---- Plan for reference ----
-Seq Scan on public.foo  (cost=0.00..2041.00 rows=2 width=12) (actual time=1.451..7.254 rows=5 loops=1)
-        Output: id, value
-        Filter: ((foo.value >= 100) AND (foo.value <= 150))
-        Rows Removed by Filter: 99995
-        Buffers: shared hit=541
-      Planning Time: 0.113 ms
-      Execution Time: 7.259 ms
+Finalize Aggregate  (cost=31312.56..31312.57 rows=1 width=24) (actual time=85.961..86.542 rows=1 loops=1)
+        Output: min(price), max(price), count(*)
+        Buffers: shared hit=192 read=15537
+        ->  Gather  (cost=31312.33..31312.54 rows=2 width=24) (actual time=85.862..86.537 rows=3 loops=1)
+...
 
----- Plan for other_index ----
-Bitmap Heap Scan on public.foo  (cost=4.31..11.97 rows=2 width=12) (actual time=0.010..0.014 rows=5 loops=1)
-        Output: id, value
-        Recheck Cond: ((foo.value >= 100) AND (foo.value <= 150))
-        Heap Blocks: exact=5
-        Buffers: shared hit=10
-        ->  Bitmap Index Scan on foo_value_idx1  (cost=0.00..4.30 rows=2 width=0) (actual time=0.008..0.008 rows=5 loops=1)
-              Index Cond: ((foo.value >= 100) AND (foo.value <= 150))
-              Buffers: shared hit=5
-      Planning Time: 0.095 ms
-      Execution Time: 0.020 ms
+---- Plan for expr_available_is_true ----
+Finalize Aggregate  (cost=31312.56..31312.57 rows=1 width=24) (actual time=91.614..92.226 rows=1 loops=1)
+        Output: min(price), max(price), count(*)
+        Buffers: shared hit=288 read=15441
+        ->  Gather  (cost=31312.33..31312.54 rows=2 width=24) (actual time=91.547..92.220 rows=3 loops=1)
+...
+
+---- Plan for partial_idx ----
+Finalize Aggregate  (cost=31312.56..31312.57 rows=1 width=24) (actual time=86.324..86.913 rows=1 loops=1)
+        Output: min(price), max(price), count(*)
+        Buffers: shared hit=480 read=15249
+        ->  Gather  (cost=31312.33..31312.54 rows=2 width=24) (actual time=86.230..86.907 rows=3 loops=1)
+...
 ```
 
 ## How it works?
