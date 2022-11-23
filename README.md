@@ -52,18 +52,18 @@ You can find an example in `config.sample.yml`
 
 ```yml
 #config.yml example
-- table_name: name_of_the_table_containing_the_indexes
-- common_indexes:
+table_name: name_of_the_table_containing_the_indexes
+common_indexes:
     - index1_that_should_be_present_on_each_scenario
     - index2_that_should_be_present_on_each_scenario
-- scenarios:
-    - reference:
+scenarios:
+    reference:
         - production_index_that_seems_useless
         - another_production_index_that_seems_useless
-    - scenario_removing_both:
-    - some_scenario:
+    scenario_removing_both:
+    some_scenario:
         - one_candidate
-    - other_scenario:
+    other_scenario:
         - other_candidate
 ```
 
