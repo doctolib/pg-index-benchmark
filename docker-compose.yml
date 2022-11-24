@@ -4,7 +4,7 @@ services:
     build:
       dockerfile: Dockerfile
     volumes:
-      - ./demo/index-benchmark-tool/:/host_files
+      - ./demo/sample_app/:/host_files
     depends_on:
       db:
         condition: service_healthy
