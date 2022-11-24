@@ -76,8 +76,8 @@ scenarios:
 A demo is included in this project. It creates a database with its dataset and compares some indexes.
 To run the demo:
 ```bash
-    docker compose -f docker-compose.demo.yml build
-    docker compose -f docker-compose.demo.yml up --abort-on-container-exit --remove-orphans
+    docker compose build
+    docker compose up
 ```
 
 ### Real usage
