@@ -32,10 +32,15 @@ If you want to try indexes that are not currently in production, create all of t
 
 Extract queries from your production that could cover most of the cases. Note that queries will be ignored if they are not using the table defined in `table_name` in your configuration file. This file should be provided as an argument of the command.
 
+In our example, we choose to extract queries in the file named `queries.sql`.
+
 To extract these queries, you could for example enable logs in your PG server and tune these config variables:
 - `log_statement` to enable all logs
 - `log_statement_sample_rate` to introduce some sampling and avoid too many queries
 And then extract queries by downloading logs.
+
+Every queries must ends with a `;`.
+We suggest that you put on SQL query on a single line, each query ending with `;`.
 
 [Pgbadger](https://pgbadger.darold.net/) could also help you to extract queries from the raw logs.
 
@@ -84,14 +89,14 @@ First install ruby 3.1.2, then:
 
 ```shell
 bundle install
-POSTGRES_DATABASE=mydb POSTGRES_USER=$USER -c /host_files/index_benchmark.yml /host_files/queries.txt
+POSTGRES_DATABASE=mydb POSTGRES_USER=$USER -c /host_files/index_benchmark.yml /host_files/queries.sql
 ```
 
 #### With docker
 
 ```shell
 docker build -t benchmark_tool .
-docker run -v $PWD:/host_files --rm -e POSTGRES_DATABASE=mydb -e POSTGRES_USER=$USER -e POSTGRES_HOST=myhost benchmark_tool -c /host_files/config.yml /host_files/queries.txt
+docker run -v $PWD:/host_files --rm -e POSTGRES_DATABASE=mydb -e POSTGRES_USER=$USER -e POSTGRES_HOST=myhost benchmark_tool -c /host_files/config.yml /host_files/queries.sql
 ```
 
 Note:

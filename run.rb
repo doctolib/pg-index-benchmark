@@ -19,7 +19,9 @@ parser =
       ' ',
       ' ',
       'Connection config:',
-      'By default, the localhost connection is used on local port. Override the environment variables to connect to other db: POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD',
+      'By default, the localhost connection is used on local port.',
+      'Override the environment variables to connect to other db:',
+      '  POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD',
     ].join(
       '
       ',

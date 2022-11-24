@@ -227,6 +227,7 @@ class IndexBenchmarkTool
         end
         run_query_for_scenario(scenario, query, :json)
       end
+      raise "Error: no valid queries found in #{@input_file_path}. Make sure queries are valid and end with ';'" if @queries_run_in_scenario
       puts "  - #{@queries_run_in_scenario} queries run"
     else
       run_query_for_scenario(scenario, only_query_text, :raw)
