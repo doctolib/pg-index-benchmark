@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  tool:
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - ./demo/index-benchmark-tool/:/host_files
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_PASSWORD: demo_pwd
+      POSTGRES_DATABASE: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_HOST: db
+    command: [ "-c", "/host_files/config.yml", "-n", "5", "/host_files/queries.sql" ]
+  db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: demo_pwd
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD", "/bin/bash", "/check_db_status.sh" ]
+      interval: 1s
+      timeout: 0.5s
+      retries: 200
+      start_period: 0.5s
+    volumes:
+      - ./demo/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./demo/database/check_db_status.sh:/check_db_status.sh:ro
+      - ./demo/database/postgres.conf:/etc/postgresql/postgresql.conf
