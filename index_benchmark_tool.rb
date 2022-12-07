@@ -53,7 +53,12 @@ class IndexBenchmarkTool
         read_query_count += 1
 
         # Skip queries that were already parsed or ignored
-        fingerprint = PgQuery.fingerprint(query)
+        begin
+          fingerprint = PgQuery.fingerprint(query)
+        rescue StandardError => err
+          puts "Enable to parse #{query}"
+          raise err
+        end
         next if ignored_fingerprint.include?(fingerprint) || unique_fingerprint.include?(fingerprint)
 
         # Ignore queries that are not related to table_name
@@ -207,7 +212,7 @@ class IndexBenchmarkTool
     puts "\n- Playing scenario: #{scenario}"
     connection.exec('BEGIN')
 
-    scenario_indexes_to_keep = @scenarios[scenario]
+    scenario_indexes_to_keep = @scenarios[scenario] || []
     puts "  - Adding indexes to reference: #{scenario_indexes_to_keep.join(' ')}"
     index_to_drop =
       existing_indexes(@table_name)
