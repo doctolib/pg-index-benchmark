@@ -126,7 +126,7 @@ class IndexBenchmarkTool
     query_text = @queries_by_fingerprint[fingerprint]
     plans_for_query = @result_plans[fingerprint]
     @scenarios.each_key do |scenario|
-      indexes_by_scenario[scenario] = used_indexes(plans_for_query[scenario].to_s).join(', ')
+      indexes_by_scenario[scenario] = used_indexes(plans_for_query[scenario].to_s).sort.join(', ')
     end
 
     impacted_scenarios =
