@@ -181,3 +181,10 @@ In other words, for each scenario:
 - it extracts the execution plan for all the select queries
 - it rollbacks
 
+## Development
+
+### Run tests
+
+```bash
+bundle exec rake
+```

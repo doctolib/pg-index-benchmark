@@ -11,3 +11,7 @@ gem 'pg'
 gem 'pg_query'
 gem 'set'
 gem 'yaml'
+
+gem "minitest", "~> 5.16"
+
+gem "rake", "~> 13.0"
