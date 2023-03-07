@@ -8,7 +8,6 @@ module PgIndexBenchmark
       @options = {}
     end
     def run(args = ARGV)
-      puts ARGF
       @options, _paths = PgIndexBenchmark::OptionParser.new.parse(args)
       puts "Options are:"
       puts @options
