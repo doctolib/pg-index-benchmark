@@ -10,10 +10,9 @@ module PgIndexBenchmark
         ::OptionParser.new do |opts|
           add_banner(opts)
           add_help_option(opts)
-          add_db_connection(opts)
-          add_config(opts)
           add_run_mode(opts)
-
+          add_config(opts)
+          add_db_connection(opts)
           add_benchmark_options(opts)
         end
       options[:other_args] = parser.parse!(args)
@@ -70,21 +69,20 @@ CONTENT
     end
 
     def add_run_mode(opts)
-      add_header(opts, "Run mode:")
+      add_header(opts, "Run mode:", 'By default, benchmark mode is used.')
       opts.on(
         "-d",
         "--deduplicate-only",
         "Only deduplicate queries from input file, and copy them when they are related to table_name"
       ) { options[:mode] = :deduplicate }
-
+    end
+    def add_benchmark_options(opts)
+      add_header(opts, "Benchmark options:")
       opts.on(
         "-q query_fingerprint",
         "--only-query=query_fingerprint",
         "Benchmark only the query matching query_fingerprint"
       ) { |fingerprint| options[:only_query_fingerprint] = fingerprint }
-    end
-    def add_benchmark_options(opts)
-      add_header(opts, "Benchmark options:")
       opts.on(
         "-n times",
         "--load-cache-run times",
@@ -96,8 +94,9 @@ CONTENT
         "Specify the max queries to run per scenario. If this amount is reached further queries will be ignored"
       ) { |n| options[:max_queries_per_scenario] = n }
     end
-    def add_header(opts, header)
+    def add_header(opts, header, extra_text = nil)
       opts.separator(rainbow.wrap("\n" + header).bright)
+      opts.separator(extra_text) if extra_text
     end
   end
 end
