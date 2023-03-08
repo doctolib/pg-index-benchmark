@@ -9,14 +9,14 @@ module PgIndexBenchmark
     end
     def run(args = ARGV)
       @options, paths = CLI::OptionParser.new.parse(args)
-      puts "Options are:"
       query_file_path = paths[0]
-      puts @options, query_file_path
-      if @options[:mode] == :deduplicate
-        Runner::Deduplicator.new(@options, query_file_path).validate_config.run
-      else
-        Runner::Benchmark.new(@options, query_file_path).validate_config.run
-      end
+      runner.new(@options, query_file_path).validate_config.run
+    end
+
+    private
+
+    def runner
+      @options[:mode] == :deduplicate ? Runner::Deduplicator : Runner::Benchmark
     end
   end
 end
