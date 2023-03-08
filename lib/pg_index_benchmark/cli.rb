@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_relative 'option_parser'
+require_relative "cli/option_parser"
 module PgIndexBenchmark
   class CLI
     attr_reader :options
