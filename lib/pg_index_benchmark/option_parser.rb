@@ -5,7 +5,7 @@ require "rainbow"
 module PgIndexBenchmark
   class OptionParser
     def parse(args)
-      options = { mode: :benchmark }
+      @options = { mode: :benchmark }
       parser =
         ::OptionParser.new do |opts|
           add_banner(opts)
@@ -15,7 +15,8 @@ module PgIndexBenchmark
           add_db_connection(opts)
           add_benchmark_options(opts)
         end
-      options[:other_args] = parser.parse!(args)
+      parser.parse!(args)
+      [@options, args]
     end
 
     private
@@ -55,8 +56,8 @@ BANNER
       opts.on(
         "-c config_file.yml",
         "--config=config_file.yml",
-        "Specify the config file instead of config_file.yml"
-      ) { |config_path| options[:config_path] = config_path }
+        "Specify the config file (default: config_file.yml)"
+      ) { |config_path| @options[:config_path] = config_path }
     end
 
     def add_db_connection(opts)
@@ -74,7 +75,7 @@ CONTENT
         "-d",
         "--deduplicate-only",
         "Only deduplicate queries from input file, and copy them when they are related to table_name"
-      ) { options[:mode] = :deduplicate }
+      ) { @options[:mode] = :deduplicate }
     end
     def add_benchmark_options(opts)
       add_header(opts, "Benchmark options:")
@@ -82,17 +83,17 @@ CONTENT
         "-q query_fingerprint",
         "--only-query=query_fingerprint",
         "Benchmark only the query matching query_fingerprint"
-      ) { |fingerprint| options[:only_query_fingerprint] = fingerprint }
+      ) { |fingerprint| @options[:only_query_fingerprint] = fingerprint }
       opts.on(
         "-n times",
         "--load-cache-run times",
         "Run each query n times priori to get the plan, in order to have an up to date cache"
-      ) { |times| options[:times] = times }
+      ) { |times| @options[:times] = times }
       opts.on(
         "-m n",
         "--max-queries-per-scenario=n",
         "Specify the max queries to run per scenario. If this amount is reached further queries will be ignored"
-      ) { |n| options[:max_queries_per_scenario] = n }
+      ) { |n| @options[:max_queries_per_scenario] = n }
     end
     def add_header(opts, header, extra_text = nil)
       opts.separator(rainbow.wrap("\n" + header).bright)
