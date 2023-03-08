@@ -8,10 +8,15 @@ module PgIndexBenchmark
       @options = {}
     end
     def run(args = ARGV)
-      @options, _paths = PgIndexBenchmark::OptionParser.new.parse(args)
+      @options, paths = CLI::OptionParser.new.parse(args)
       puts "Options are:"
-      puts @options
-      #TODO
+      query_file_path = paths[0]
+      puts @options, query_file_path
+      if @options[:mode] == :deduplicate
+        Runner::Deduplicator.new(@options, query_file_path).validate_config.run
+      else
+        Runner::Benchmark.new(@options, query_file_path).validate_config.run
+      end
     end
   end
 end
