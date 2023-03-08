@@ -1,10 +1,9 @@
 module PgIndexBenchmark
   module Runner
     class Deduplicator
-      def initialize(config, file_path)
-        puts config
+      def initialize(options, file_path)
         @file_path = file_path
-        @table_name = config[:table_name]
+        @table_name = options[:table_name]
       end
       def validate_config
         raise 'Missing table_name or source_file. Check help' if (@table_name&.empty? || @file_path&.empty?)
