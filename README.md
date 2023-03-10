@@ -76,8 +76,7 @@ scenarios:
 A demo is included in this project. It creates a database with its dataset and compares some indexes.
 To run the demo:
 ```bash
-    docker compose build
-    docker compose up
+    docker compose up --abort-on-container-exit
 ```
 
 ### Real usage
