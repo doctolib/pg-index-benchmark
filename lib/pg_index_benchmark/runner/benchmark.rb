@@ -144,7 +144,7 @@ module PgIndexBenchmark
         end
 
         unless not_impacted_scenarios.empty?
-          puts "Not impacted scenarios: #{not_impacted_scenarios.join(" ")}"
+          puts "Scenarios without impact: #{not_impacted_scenarios.join(" ")}"
         end
 
         puts ""
