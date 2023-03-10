@@ -1,0 +1,6 @@
+require_relative 'pg_index_benchmark/cli'
+require_relative 'pg_index_benchmark/cli/option_parser'
+require_relative 'pg_index_benchmark/config_loader.rb'
+require_relative 'pg_index_benchmark/query_file_reader'
+require_relative 'pg_index_benchmark/runner/benchmark'
+require_relative 'pg_index_benchmark/runner/deduplicator'

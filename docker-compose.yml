@@ -2,6 +2,7 @@ version: '3.8'
 services:
   tool:
     build:
+      context: ./
       dockerfile: Dockerfile
     volumes:
       - ./demo/index-benchmark-tool/:/host_files

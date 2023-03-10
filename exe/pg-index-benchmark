@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift("#{__dir__}/../lib")
+
+require 'pg_index_benchmark'
+cli = PgIndexBenchmark::CLI.new
+cli.run

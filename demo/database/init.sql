@@ -1,3 +1,4 @@
+BEGIN;
 CREATE TABLE book (
     id serial PRIMARY KEY,
     title text,
@@ -24,5 +25,5 @@ CREATE INDEX book_title_available_idx
 
 CREATE INDEX book_available_is_expr_idx
     ON book (price, (available IS true));
-
+COMMIT;
 VACUUM ANALYZE book;
