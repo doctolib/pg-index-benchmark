@@ -4,6 +4,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+      network: host
     volumes:
       - ./demo/index-benchmark-tool/:/host_files
     depends_on:
