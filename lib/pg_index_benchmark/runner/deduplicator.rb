@@ -6,13 +6,12 @@ module PgIndexBenchmark
         @table_name = options[:table_name]
       end
       def validate_config
-        raise 'Missing table_name or source_file. Check help' if (@table_name&.empty? || @file_path&.empty?)
+        if @table_name&.empty? || @file_path&.empty?
+          raise "Missing table_name or source_file. Check help"
+        end
         self
       end
       def run
-        output_path =
-          @file_path.gsub(/\.([^.]+)$/) { ".unique.#{Regexp.last_match(1)}" }
-
         read_query_count = 0
         unique_fingerprint = Set.new
         ignored_fingerprint = []
@@ -50,14 +49,13 @@ module PgIndexBenchmark
         puts "Total #{read_query_count} queries using (#{unique_fingerprint.size} unique using #{@table_name})"
         puts "Writing to #{output_path}..."
         File.open(output_path, "w") do |output|
-          output.puts(
-            kept_queries.join(
-              "
-            "
-            )
-          )
+          output.puts(kept_queries.join("\n"))
         end
         puts "Done"
+      end
+
+      def output_path
+        @file_path.gsub(/\.([^.]+)$/) { ".unique.#{Regexp.last_match(1)}" }
       end
     end
   end
