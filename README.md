@@ -143,7 +143,7 @@ Actual Rows:
 Used indexes:
   reference               
   partial_idx             book_price_partial_idx
-Not impacted scenarios: expr_available_is_true
+Scenarios without impact: expr_available_is_true
 ```
 
 Detailed view for a specific query:
