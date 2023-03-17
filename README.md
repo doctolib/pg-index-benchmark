@@ -81,7 +81,7 @@ scenarios:
 ```
 ### Install
 
-Install ruby 3.1.2, then:
+Install ruby 3.2.1, then:
 
 ```bash
 gem build pg_index_benchmark.gemspec && gem install ./pg_index_benchmark-0.0.0.gem
