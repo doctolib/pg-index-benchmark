@@ -1,5 +1,4 @@
-FROM ruby:3.1.2
-
+FROM ruby:3.2.1
 WORKDIR /usr/src/app
 
 ADD Gemfile Gemfile.lock pg_index_benchmark.gemspec /usr/src/app/

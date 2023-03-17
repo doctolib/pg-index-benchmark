@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
     Pg-index-benchmark helps to benchmark the index changes you could do on Aurora PostgreSQL instances.
 DESCRIPTION
   s.platform = Gem::Platform::RUBY
-  s.required_ruby_version = ">= 3.1.2"
+  s.required_ruby_version = ">= 3.2.1"
   s.authors = ["Emmanuel Quincerot"]
   s.email = "emmanuel.quincerot@doctolib.com"
   s.files = Dir.glob("{lib}/**/*", File::FNM_DOTMATCH)
