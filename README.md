@@ -17,7 +17,15 @@ This extension is not available on Aurora, so we can’t use it on our usual clu
 - It seems over complicated to recreate a Vanilla Postgres instance with the preprod dataset to be able to use this extension.
 - It would not representative if we use this extension locally, as we can’t have a representative dataset.
 
-## How to use it?
+
+## Run the demo
+A demo is included in this project. It creates a database with its dataset and compares some indexes.
+To run the demo:
+```bash
+    docker compose up --abort-on-container-exit --build
+```
+
+## How to use it with your own schema?
 
 ### Choose a table
 
@@ -71,37 +79,21 @@ scenarios:
     other_scenario:
         - other_candidate
 ```
+### Install
 
-### Demo
-A demo is included in this project. It creates a database with its dataset and compares some indexes.
-To run the demo:
+Install ruby 3.1.2, then:
+
 ```bash
-    docker compose up --abort-on-container-exit
+gem build pg_index_benchmark.gemspec && gem install ./pg_index_benchmark-0.0.0.gem
 ```
 
-### Real usage
+### Run
 First run it in your local environment to understand how it works.
 Don't believe the results when using a database that does not have the appropriate dataset.
 Don't run it in production as it would block other DDL.
-#### Without docker
-First install ruby 3.1.2, then:
 
 ```shell
-bundle install
-POSTGRES_DATABASE=mydb POSTGRES_USER=$USER -c /host_files/index_benchmark.yml /host_files/queries.sql
-```
-
-#### With docker
-
-```shell
-docker build -t benchmark_tool .
-docker run -v $PWD:/host_files --rm -e POSTGRES_DATABASE=mydb -e POSTGRES_USER=$USER -e POSTGRES_HOST=myhost benchmark_tool -c /host_files/config.yml /host_files/queries.sql
-```
-
-Note:
-If you need to access a pg in a docker, you can use these options:
-```shell
---link docker_container_name --network docker_network_name
+POSTGRES_DATABASE=mydb POSTGRES_USER=$USER pg-index-benchmark -c /host_files/index_benchmark.yml /host_files/queries.sql
 ```
 
 ## Examples
@@ -180,9 +172,8 @@ In other words, for each scenario:
 - it extracts the execution plan for all the select queries
 - it rollbacks
 
-## Development
-
-### Run tests
+**Scenarios without impact**: this means that the execution plan is the same for both the _scenario without impact_ and the _reference_ scenario.
+## Run tests
 
 ```bash
 bundle exec rake
