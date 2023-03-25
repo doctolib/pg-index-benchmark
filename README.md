@@ -22,7 +22,7 @@ This extension is not available on Aurora, so we can’t use it on our usual clu
 A demo is included in this project. It creates a database with its dataset and compares some indexes.
 To run the demo:
 ```bash
-    docker compose up --abort-on-container-exit --build
+docker compose up --abort-on-container-exit --build
 ```
 
 ## How to use it with your own schema?
