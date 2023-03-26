@@ -15,9 +15,10 @@ services:
       POSTGRES_DATABASE: postgres
       POSTGRES_USER: postgres
       POSTGRES_HOST: db
-    command: [ "-c", "/host_files/config.yml", "-n", "5", "/host_files/queries.sql" ]
+    command: [ "-c", "/host_files/config.yml", "-n", "1", "/host_files/queries.sql" ]
   db:
     image: postgres:alpine
+    command: ['postgres', '-c', 'max_wal_senders=0', '-c', 'wal_level=minimal', '-c', 'shared_buffers=512MB', '-c', 'max_wal_size=10GB']
     environment:
       POSTGRES_PASSWORD: demo_pwd
       PGDATA: /var/lib/postgresql/data/pgdata

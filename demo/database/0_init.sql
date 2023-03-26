@@ -47,3 +47,4 @@ UPDATE book SET price = price - 1 WHERE price % 10 = 8;
 
 ANALYZE book;
 
+ALTER user postgres SET max_parallel_workers_per_gather = 0;
