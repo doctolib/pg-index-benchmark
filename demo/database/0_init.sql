@@ -1,6 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-BEGIN;
 CREATE TABLE book (
     id serial PRIMARY KEY,
     title text,
@@ -38,8 +37,6 @@ CREATE INDEX book_available_is_expr_price_idx
 
 CREATE INDEX book_title_idx
     ON book (title);
-
-COMMIT;
 
 -- Adding entropy
 UPDATE book SET price = price + 1 WHERE price % 10 = 7;
