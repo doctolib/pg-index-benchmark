@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'pg'
+require "pg"
 module PgIndexBenchmark
   module Runner
     class Benchmark
@@ -182,7 +182,9 @@ module PgIndexBenchmark
         @query_prerun_count.times { connection.exec(query) }
         json_plan =
           connection
-            .exec("EXPLAIN (FORMAT JSON, ANALYZE, BUFFERS, VERBOSE) #{query}")
+            .exec(
+              "EXPLAIN (FORMAT JSON, ANALYZE, BUFFERS, VERBOSE) #{query}"
+            )
             .first
             .first[
             1
@@ -192,7 +194,9 @@ module PgIndexBenchmark
 
       def raw_plan(query)
         json_plan =
-          connection.exec("EXPLAIN (ANALYZE, BUFFERS, VERBOSE) #{query}").values
+          connection.exec(
+            "EXPLAIN (ANALYZE, BUFFERS, VERBOSE) #{query}"
+          ).values
         json_plan.join(
           "
         "
@@ -202,7 +206,7 @@ module PgIndexBenchmark
       def existing_indexes(table_name)
         result =
           connection.exec(
-            "select indexname from pg_indexes where tablename = '#{table_name}'"
+            "select indexname from pg_indexes where tablename = '#{table_name}';"
           )
         result.values.map(&:first)
       end
@@ -210,24 +214,24 @@ module PgIndexBenchmark
       def drop_indexes(indexes)
         puts "  - Dropping #{indexes.size} indexes: #{indexes.join(" ")}"
         indexes.each do |index|
-          connection.exec("DROP INDEX IF EXISTS \"#{index}\"")
+          connection.exec("DROP INDEX IF EXISTS \"#{index}\";")
         end
       end
 
       def benchmark(scenario, only_query_text = nil)
         puts "\n- Playing scenario: #{scenario}"
-        connection.exec("BEGIN")
+        connection.exec("BEGIN;")
 
         drop_indexes(indexes_to_drop(scenario))
 
         if only_query_text.nil?
           puts (
-            if @query_prerun_count > 0
-              "  - Running queries (#{@query_prerun_count} times each)..."
-            else
-              "  - Running queries..."
-            end
-          )
+                 if @query_prerun_count > 0
+                   "  - Running queries (#{@query_prerun_count} times each)..."
+                 else
+                   "  - Running queries..."
+                 end
+               )
           @queries_run_in_scenario = 0
           QueryFileReader
             .new(@input_file_path)
@@ -245,8 +249,7 @@ module PgIndexBenchmark
         else
           run_query_for_scenario(scenario, only_query_text, :raw)
         end
-      ensure
-        connection.exec("ROLLBACK")
+        connection.exec("ROLLBACK;")
       end
 
       def indexes_to_drop(scenario)
