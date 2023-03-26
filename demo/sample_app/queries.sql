@@ -1,4 +1,5 @@
-SELECT min(price), max(price), count(*) FROM book;
-SELECT title FROM book WHERE price > 1000 AND available IS true order by price desc LIMIT 20;
-SELECT title FROM book WHERE available IS true;
-SELECT min(price) FROM book WHERE price > 2000 AND available IS true;
+SELECT * from book where id = 123;
+SELECT count(*) from book where price > 75 and available = true;
+SELECT count(*) FROM book WHERE price > 95 and available IS true;
+SELECT count(*) FROM book where title = (select title from book limit 1) and available;
+SELECT min(price), max(price), count(*) FROM book LIMIT 10;
