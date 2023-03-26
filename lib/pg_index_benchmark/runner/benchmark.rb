@@ -82,7 +82,7 @@ module PgIndexBenchmark
           .parse do |query|
             fingerprint = fingerprint(query)
             next if fingerprint != query_fingerprint
-            puts "Full details for query #{query_fingerprint}: #{related_query}"
+            puts "Full details for query #{query_fingerprint}: #{query}"
             return query
           end
         raise "Could not run only query #{query_fingerprint}. Query not found in #{@input_file_path}"
@@ -182,9 +182,7 @@ module PgIndexBenchmark
         @query_prerun_count.times { connection.exec(query) }
         json_plan =
           connection
-            .exec(
-              "EXPLAIN (FORMAT JSON, ANALYZE, BUFFERS, VERBOSE) #{query}"
-            )
+            .exec("EXPLAIN (FORMAT JSON, ANALYZE, BUFFERS, VERBOSE) #{query}")
             .first
             .first[
             1
@@ -194,9 +192,7 @@ module PgIndexBenchmark
 
       def raw_plan(query)
         json_plan =
-          connection.exec(
-            "EXPLAIN (ANALYZE, BUFFERS, VERBOSE) #{query}"
-          ).values
+          connection.exec("EXPLAIN (ANALYZE, BUFFERS, VERBOSE) #{query}").values
         json_plan.join(
           "
         "
@@ -227,7 +223,7 @@ module PgIndexBenchmark
         if only_query_text.nil?
           puts (
                  if @query_prerun_count > 0
-                   "  - Running queries (#{@query_prerun_count} times each)..."
+                   "  - Running queries (#{@query_prerun_count + 1} times each)..."
                  else
                    "  - Running queries..."
                  end
