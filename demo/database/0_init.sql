@@ -40,4 +40,10 @@ CREATE INDEX book_title_idx
     ON book (title);
 
 COMMIT;
-VACUUM ANALYZE book;
+
+-- Adding entropy
+UPDATE book SET price = price + 1 WHERE price % 10 = 7;
+UPDATE book SET price = price - 1 WHERE price % 10 = 8;
+
+ANALYZE book;
+
