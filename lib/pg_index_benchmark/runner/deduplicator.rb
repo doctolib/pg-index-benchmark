@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PgIndexBenchmark
   module Runner
     class Deduplicator
@@ -55,7 +57,7 @@ module PgIndexBenchmark
       end
 
       def output_path
-        @file_path.gsub(/\.([^.]+)$/) { ".unique.#{Regexp.last_match(1)}" }
+        @output_path ||= @file_path.gsub(/\.([^.]+)$/) { ".unique.#{Regexp.last_match(1)}" }
       end
     end
   end
