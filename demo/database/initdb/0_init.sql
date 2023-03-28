@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-CREATE TABLE book (
+CREATE TABLE books (
     id serial PRIMARY KEY,
     title text,
     price bigint,
@@ -8,7 +8,7 @@ CREATE TABLE book (
 );
 
 -- Mocking dataset
-INSERT INTO book (title, price, available)
+INSERT INTO books (title, price, available)
     SELECT
         left(md5(random()::text), 3+(17*random())::integer),
         (random() * 100)::bigint,
@@ -16,28 +16,28 @@ INSERT INTO book (title, price, available)
     FROM generate_series(1, 2000000);
 
 -- Initial indexes
-CREATE INDEX book_price_idx
-    ON book (price);
+CREATE INDEX books_price_idx
+    ON books (price);
 
-CREATE INDEX book_available_title_idx
-    ON book USING gin (title gin_trgm_ops);
+CREATE INDEX books_available_title_idx
+    ON books USING gin (title gin_trgm_ops);
 
-CREATE INDEX book_available_idx
-    ON book (available);
+CREATE INDEX books_available_idx
+    ON books (available);
 
 -- Candidate indexes
-CREATE INDEX book_price_available_partial
-    ON book (price) where available IS true;
+CREATE INDEX books_price_available_partial
+    ON books (price) where available IS true;
 
-CREATE INDEX book_price_available_idx
-    ON book (price, available);
+CREATE INDEX books_price_available_idx
+    ON books (price, available);
 
-CREATE INDEX book_available_price_idx
-    ON book (available, price);
+CREATE INDEX books_available_price_idx
+    ON books (available, price);
 
-CREATE INDEX book_title_idx
-    ON book (title);
+CREATE INDEX books_title_idx
+    ON books (title);
 
-ANALYZE book;
+ANALYZE books;
 
 ALTER user postgres SET max_parallel_workers_per_gather = 0;

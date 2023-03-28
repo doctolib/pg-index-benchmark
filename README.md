@@ -102,20 +102,20 @@ Standard execution:
 ```text
 - Playing scenario: reference
 Connecting to postgres@db:5432/postgres ...
-  - Adding indexes to reference: book_price_idx book_available_title_idx book_available_idx
-  - Dropping 4 indexes: book_price_available_partial book_price_available_idx book_available_price_idx book_title_idx
+  - Adding indexes to reference: books_price_idx books_available_title_idx books_available_idx
+  - Dropping 4 indexes: books_price_available_partial books_price_available_idx books_available_price_idx books_title_idx
   - Running queries (2 times each)...
   - 5 queries run
 
 - Playing scenario: scenario1
-  - Adding indexes to reference: book_price_available_partial
-  - Dropping 6 indexes: book_price_idx book_available_title_idx book_available_idx book_price_available_idx book_available_price_idx book_title_idx
+  - Adding indexes to reference: books_price_available_partial
+  - Dropping 6 indexes: books_price_idx books_available_title_idx books_available_idx books_price_available_idx books_available_price_idx books_title_idx
   - Running queries (2 times each)...
   - 5 queries run
 ...
 ----------------------------------------------------
 Query 9602a2c952652489ab7b813a3beabd058a0e0556:
-SELECT count(*) from book where price > 75 and available = true;
+SELECT count(*) from books where price > 75 and available = true;
 
 Actual Total Time:
   reference  188.837
@@ -142,12 +142,12 @@ Shared Hit Blocks:
   scenario5  19248 ✅
 
 Used indexes:
-  reference  book_available_idx
+  reference  books_available_idx
   scenario1  
-  scenario2  book_price_available_idx
-  scenario3  book_available_price_idx
+  scenario2  books_price_available_idx
+  scenario3  books_available_price_idx
   scenario4  
-  scenario5  book_available_price_idx
+  scenario5  books_available_price_idx
 ...
 ```
 
