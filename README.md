@@ -103,13 +103,13 @@ Standard execution:
 - Playing scenario: reference
 Connecting to postgres@db:5432/postgres ...
   - Adding indexes to reference: book_price_idx book_available_title_idx book_available_idx
-  - Dropping 4 indexes: book_price_available_partial book_price_available_is_expr_idx book_available_is_expr_price_idx book_title_idx
+  - Dropping 4 indexes: book_price_available_partial book_price_available_idx book_available_price_idx book_title_idx
   - Running queries (2 times each)...
   - 5 queries run
 
 - Playing scenario: scenario1
   - Adding indexes to reference: book_price_available_partial
-  - Dropping 6 indexes: book_price_idx book_available_title_idx book_available_idx book_price_available_is_expr_idx book_available_is_expr_price_idx book_title_idx
+  - Dropping 6 indexes: book_price_idx book_available_title_idx book_available_idx book_price_available_idx book_available_price_idx book_title_idx
   - Running queries (2 times each)...
   - 5 queries run
 ...
@@ -144,10 +144,10 @@ Shared Hit Blocks:
 Used indexes:
   reference  book_available_idx
   scenario1  
-  scenario2  book_price_available_is_expr_idx
-  scenario3  book_available_is_expr_price_idx
+  scenario2  book_price_available_idx
+  scenario3  book_available_price_idx
   scenario4  
-  scenario5  book_available_is_expr_price_idx
+  scenario5  book_available_price_idx
 ...
 ```
 

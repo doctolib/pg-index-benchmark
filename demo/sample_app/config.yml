@@ -9,11 +9,11 @@ scenarios:
   scenario1:
     - book_price_available_partial
   scenario2:
-    - book_price_available_is_expr_idx
+    - book_price_available_idx
   scenario3:
-    - book_available_is_expr_price_idx
+    - book_available_price_idx
   scenario4:
     - book_title_idx
   scenario5:
     - book_title_idx
-    - book_available_is_expr_price_idx
+    - book_available_price_idx

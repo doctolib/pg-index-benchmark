@@ -29,10 +29,10 @@ CREATE INDEX book_available_idx
 CREATE INDEX book_price_available_partial
     ON book (price) where available IS true;
 
-CREATE INDEX book_price_available_is_expr_idx
+CREATE INDEX book_price_available_idx
     ON book (price, available);
 
-CREATE INDEX book_available_is_expr_price_idx
+CREATE INDEX book_available_price_idx
     ON book (available, price);
 
 CREATE INDEX book_title_idx
