@@ -1,11 +1,19 @@
-table_name: book
+table_name: books
 common_indexes:
-  - book_pkey
+  - books_pkey
 scenarios:
   reference:
-    - book_title_available_idx
-    - book_price_idx
-  expr_available_is_true:
-    - book_available_is_expr_idx
-  partial_idx:
-    - book_price_partial_idx
+    - books_price_idx
+    - books_available_title_idx
+    - books_available_idx
+  scenario1:
+    - books_price_available_partial
+  scenario2:
+    - books_price_available_idx
+  scenario3:
+    - books_available_price_idx
+  scenario4:
+    - books_title_idx
+  scenario5:
+    - books_title_idx
+    - books_available_price_idx

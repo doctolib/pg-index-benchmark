@@ -1,3 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 echo "Checking if db is ready..."
-psql postgres://postgres:demo_pwd@localhost:5432/postgres -XAwtc 'SELECT 1 / count(*) from book;'
+[[ -e '/var/lib/postgresql/db_scripts_done' ]]
+pg_isready -U postgres

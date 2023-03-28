@@ -102,40 +102,53 @@ Standard execution:
 ```text
 - Playing scenario: reference
 Connecting to postgres@db:5432/postgres ...
-  - Adding indexes to reference: book_title_available_idx book_price_idx
-  - Dropping 2 indexes: book_price_partial_idx book_available_is_expr_idx
-  - Running queries (5 times each)...
-  - 4 queries run
+  - Adding indexes to reference: books_price_idx books_available_title_idx books_available_idx
+  - Dropping 4 indexes: books_price_available_partial books_price_available_idx books_available_price_idx books_title_idx
+  - Running queries (2 times each)...
+  - 5 queries run
 
+- Playing scenario: scenario1
+  - Adding indexes to reference: books_price_available_partial
+  - Dropping 6 indexes: books_price_idx books_available_title_idx books_available_idx books_price_available_idx books_available_price_idx books_title_idx
+  - Running queries (2 times each)...
+  - 5 queries run
 ...
 ----------------------------------------------------
-Query f3d04a7ce3a94648ce541d2660b25a322f625795:
-SELECT title FROM book WHERE available IS true;
+Query 9602a2c952652489ab7b813a3beabd058a0e0556:
+SELECT count(*) from books where price > 75 and available = true;
 
 Actual Total Time:
-  reference               137.405
-  partial_idx             72.788 ✅
+  reference  188.837
+  scenario1  227.165 ❌️
+  scenario2  79.717 ✅
+  scenario3  86.325 ✅
+  scenario4  423.53 ❌️
+  scenario5  62.63 ✅
 
 Total Cost:
-  reference               35729.0
-  partial_idx             23189.97 ✅
+  reference  29102.26
+  scenario1  44399.16 ❌️
+  scenario2  27665.02 ✅
+  scenario3  22028.95 ✅
+  scenario4  44399.16 ❌️
+  scenario5  22028.95 ✅
 
 Shared Hit Blocks:
-  reference               928
-  partial_idx             16074 ❌️
-
-Shared Read Blocks:
-  reference               14801
-  partial_idx             0 ✅
-
-Actual Rows:
-  reference               400004
-  partial_idx             400004 ✅
+  reference  19577
+  scenario1  19159 ✅
+  scenario2  19715 ❌️
+  scenario3  19248 ✅
+  scenario4  19159 ✅
+  scenario5  19248 ✅
 
 Used indexes:
-  reference               
-  partial_idx             book_price_partial_idx
-Scenarios without impact: expr_available_is_true
+  reference  books_available_idx
+  scenario1  
+  scenario2  books_price_available_idx
+  scenario3  books_available_price_idx
+  scenario4  
+  scenario5  books_available_price_idx
+...
 ```
 
 Detailed view for a specific query:

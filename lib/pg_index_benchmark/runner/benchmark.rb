@@ -29,6 +29,7 @@ module PgIndexBenchmark
         end
 
         @scenarios.each_key do |scenario_key|
+          STDOUT.flush
           benchmark(scenario_key, related_query)
         end
 

@@ -15,19 +15,20 @@ services:
       POSTGRES_DATABASE: postgres
       POSTGRES_USER: postgres
       POSTGRES_HOST: db
-    command: [ "-c", "/host_files/config.yml", "-n", "5", "/host_files/queries.sql" ]
+    command: [ "-c", "/host_files/config.yml", "-n", "1", "/host_files/queries.sql" ]
   db:
     image: postgres:alpine
+    command: ['postgres', '-c', 'max_wal_senders=0', '-c', 'wal_level=minimal', '-c', 'shared_buffers=512MB', '-c', 'max_wal_size=10GB']
     environment:
       POSTGRES_PASSWORD: demo_pwd
       PGDATA: /var/lib/postgresql/data/pgdata
     healthcheck:
       test: ["CMD", "/bin/bash", "/check_db_status.sh" ]
       interval: 1s
-      timeout: 0.5s
+      timeout: 1s
       retries: 200
       start_period: 0.5s
     volumes:
-      - ./demo/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./demo/database/initdb/:/docker-entrypoint-initdb.d:ro
       - ./demo/database/check_db_status.sh:/check_db_status.sh:ro
       - ./demo/database/postgres.conf:/etc/postgresql/postgresql.conf
