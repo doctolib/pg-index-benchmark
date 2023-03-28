@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'pg'
+require "pg"
 module PgIndexBenchmark
   module Runner
     class Benchmark
@@ -83,7 +83,7 @@ module PgIndexBenchmark
           .parse do |query|
             fingerprint = fingerprint(query)
             next if fingerprint != query_fingerprint
-            puts "Full details for query #{query_fingerprint}: #{related_query}"
+            puts "Full details for query #{query_fingerprint}: #{query}"
             return query
           end
         raise "Could not run only query #{query_fingerprint}. Query not found in #{@input_file_path}"
@@ -203,7 +203,7 @@ module PgIndexBenchmark
       def existing_indexes(table_name)
         result =
           connection.exec(
-            "select indexname from pg_indexes where tablename = '#{table_name}'"
+            "select indexname from pg_indexes where tablename = '#{table_name}';"
           )
         result.values.map(&:first)
       end
@@ -211,33 +211,24 @@ module PgIndexBenchmark
       def drop_indexes(indexes)
         puts "  - Dropping #{indexes.size} indexes: #{indexes.join(" ")}"
         indexes.each do |index|
-          connection.exec("DROP INDEX IF EXISTS \"#{index}\"")
+          connection.exec("DROP INDEX IF EXISTS \"#{index}\";")
         end
       end
 
       def benchmark(scenario, only_query_text = nil)
         puts "\n- Playing scenario: #{scenario}"
-        connection.exec("BEGIN")
+        connection.exec("BEGIN;")
 
-        scenario_indexes_to_keep = @scenarios[scenario] || []
-        puts "  - Adding indexes to reference: #{scenario_indexes_to_keep.join(" ")}"
-        index_to_drop =
-          existing_indexes(@table_name)
-            .reject { |index| @common_indexes.include?(index) }
-            .reject { |index| scenario_indexes_to_keep.include?(index) }
-
-        drop_indexes(index_to_drop)
+        drop_indexes(indexes_to_drop(scenario))
 
         if only_query_text.nil?
-          message =
-            (
-              if @query_prerun_count > 0
-                "  - Running queries (#{@query_prerun_count} times each)..."
-              else
-                "- Running queries..."
-              end
-            )
-          puts message
+          puts (
+                 if @query_prerun_count > 0
+                   "  - Running queries (#{@query_prerun_count + 1} times each)..."
+                 else
+                   "  - Running queries..."
+                 end
+               )
           @queries_run_in_scenario = 0
           QueryFileReader
             .new(@input_file_path)
@@ -255,8 +246,15 @@ module PgIndexBenchmark
         else
           run_query_for_scenario(scenario, only_query_text, :raw)
         end
-      ensure
-        connection.exec("ROLLBACK")
+        connection.exec("ROLLBACK;")
+      end
+
+      def indexes_to_drop(scenario)
+        scenario_indexes_to_keep = @scenarios[scenario] || []
+        puts "  - Adding indexes to reference: #{scenario_indexes_to_keep.join(" ")}"
+        existing_indexes(@table_name)
+          .reject { |index| @common_indexes.include?(index) }
+          .reject { |index| scenario_indexes_to_keep.include?(index) }
       end
 
       def run_query_for_scenario(scenario, query_text, format = :json)
