@@ -38,10 +38,6 @@ CREATE INDEX book_available_is_expr_price_idx
 CREATE INDEX book_title_idx
     ON book (title);
 
--- Adding entropy
-UPDATE book SET price = price + 1 WHERE price % 10 = 7;
-UPDATE book SET price = price - 1 WHERE price % 10 = 8;
-
 ANALYZE book;
 
 ALTER user postgres SET max_parallel_workers_per_gather = 0;
