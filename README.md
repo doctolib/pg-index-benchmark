@@ -116,6 +116,7 @@ Connecting to postgres@db:5432/postgres ...
 ----------------------------------------------------
 Query 9602a2c952652489ab7b813a3beabd058a0e0556:
 SELECT count(*) from books where price > 75 and available = true;
+Returned rows: 1
 
 Actual Total Time:
   reference  188.837

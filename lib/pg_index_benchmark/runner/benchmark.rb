@@ -8,7 +8,6 @@ module PgIndexBenchmark
         "Total Cost",
         "Shared Hit Blocks",
         "Shared Read Blocks",
-        "Actual Rows"
       ].freeze
 
       def initialize(options, query_file_path)
@@ -134,6 +133,7 @@ module PgIndexBenchmark
         puts "----------------------------------------------------"
         puts "Query #{fingerprint}:"
         puts query_text.to_s
+        puts "Returned rows: #{all_query_plans_for_query["reference"]["Actual Rows"]}"
         EXPLAIN_PLAN_FIELDS_TO_EXTRACT.each do |field|
           compare_plan_results(impacted_scenarios, all_query_plans_for_query, field)
         end
