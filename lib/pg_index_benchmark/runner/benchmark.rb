@@ -128,21 +128,21 @@ module PgIndexBenchmark
         end
 
         impacted_scenarios =
-          (scenario_names - ["reference"]).reject do |scenario|
-            indexes_by_scenario[scenario] == indexes_by_scenario["reference"]
+          (scenario_names - [:reference]).reject do |scenario|
+            indexes_by_scenario[scenario] == indexes_by_scenario[:reference]
           end
         if impacted_scenarios.empty?
           @not_impacted_queries << fingerprint
           return
         end
 
-        scenarios_to_display = ["reference"] + impacted_scenarios
+        scenarios_to_display = [:reference] + impacted_scenarios
         not_impacted_scenarios = scenario_names - scenarios_to_display
 
         puts "----------------------------------------------------"
         puts "Query #{fingerprint}:"
         puts query_text.to_s
-        puts "Returned rows: #{plan_value("reference", fingerprint, "Actual Rows")}"
+        puts "Returned rows: #{plan_value(:reference, fingerprint, "Actual Rows")}"
         EXPLAIN_PLAN_FIELDS_TO_EXTRACT.each do |field|
           compare_plan_results(impacted_scenarios, fingerprint, field)
         end
@@ -271,7 +271,7 @@ module PgIndexBenchmark
       def run_query_for_scenario(scenario, query_text, format = :json)
         tables = PgQuery.parse(query_text).tables
         unless tables.include?(@table_name)
-          if scenario == "reference"
+          if scenario == :reference
             puts "Ignoring query not using #{@table_name}: #{query_text}"
           end
           return
@@ -301,7 +301,7 @@ module PgIndexBenchmark
       end
 
       def compare_plan_results(impacted_scenarios, query_fingerprint, field)
-        reference_value = plan_value("reference", query_fingerprint, field)
+        reference_value = plan_value(:reference, query_fingerprint, field)
         values_by_scenario =
           impacted_scenarios
             .map do |alternative_key|
@@ -328,7 +328,7 @@ module PgIndexBenchmark
           end
 
         puts "#{field}:"
-        puts strings_in_columns("reference", reference_value)
+        puts strings_in_columns(:reference, reference_value)
         scenario_messages.each { |r| puts r }
       end
 

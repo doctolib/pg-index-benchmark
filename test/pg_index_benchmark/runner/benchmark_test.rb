@@ -29,7 +29,7 @@ class PgIndexBenchmark::Runner::BenchmarkTest < Minitest::Test
       @benchmark.stubs(:scenario_names).returns(%w[scenario1 scenario2])
       @benchmark
         .stubs(:plan_value)
-        .with("reference", "000001", "Shared Read Blocks")
+        .with(:reference, "000001", "Shared Read Blocks")
         .returns(12.0)
 
       @benchmark
