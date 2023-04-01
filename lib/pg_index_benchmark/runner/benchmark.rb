@@ -27,7 +27,7 @@ module PgIndexBenchmark
           related_query = query_to_run(@only_query_fingerprint)
         end
 
-        @scenarios.each_key do |scenario_key|
+        scenarios.each_key do |scenario_key|
           STDOUT.flush
           benchmark(scenario_key, related_query)
         end
@@ -36,6 +36,14 @@ module PgIndexBenchmark
       end
 
       private
+
+      def scenarios
+        @scenarios
+      end
+
+      def scenario_names
+        @scenarios.keys
+      end
 
       def init_benchmark_results
         @all_query_plans_by_query = {}
@@ -112,7 +120,7 @@ module PgIndexBenchmark
       def report_for_query(fingerprint)
         indexes_by_scenario = {}
         query_text = @queries_by_fingerprint[fingerprint]
-        @scenarios.each_key do |scenario|
+        scenarios.each_key do |scenario|
           indexes_by_scenario[scenario] = used_indexes(
             fingerprint,
             scenario
@@ -120,7 +128,7 @@ module PgIndexBenchmark
         end
 
         impacted_scenarios =
-          (@scenarios.keys - ["reference"]).reject do |scenario|
+          (scenario_names - ["reference"]).reject do |scenario|
             indexes_by_scenario[scenario] == indexes_by_scenario["reference"]
           end
         if impacted_scenarios.empty?
@@ -129,7 +137,7 @@ module PgIndexBenchmark
         end
 
         scenarios_to_display = ["reference"] + impacted_scenarios
-        not_impacted_scenarios = @scenarios.keys - scenarios_to_display
+        not_impacted_scenarios = scenario_names - scenarios_to_display
 
         puts "----------------------------------------------------"
         puts "Query #{fingerprint}:"
@@ -163,7 +171,7 @@ module PgIndexBenchmark
       end
 
       def strings_in_columns(column1, column2)
-        @column_length ||= @scenarios.keys.map(&:length).max + 1
+        @column_length ||= scenario_names.map(&:length).max + 1
         "  #{column1.to_s.ljust(@column_length, " ")} #{column2}"
       end
 
@@ -293,20 +301,35 @@ module PgIndexBenchmark
       end
 
       def compare_plan_results(impacted_scenarios, query_fingerprint, field)
-        reference = plan_value("reference", query_fingerprint, field)
-        alternative_results = []
-        impacted_scenarios.each do |alternative_key|
-          alternative_result =
-            plan_value(alternative_key, query_fingerprint, field)
-          emoji = alternative_result.to_f > reference.to_f ? "❌️" : "✅"
-          alternative_results << strings_in_columns(
-            alternative_key,
-            "#{alternative_result} #{emoji}"
-          )
+        reference_value = plan_value("reference", query_fingerprint, field)
+        values_by_scenario =
+          impacted_scenarios
+            .map do |alternative_key|
+              [
+                alternative_key,
+                plan_value(alternative_key, query_fingerprint, field)
+              ]
+            end
+            .to_h
+
+        puts ""
+        if values_by_scenario
+             .values
+             .reject { |scenario_value| scenario_value == reference_value }
+             .empty?
+          puts "#{field}: #{reference_value} (same for all scenarios)"
+          return
         end
-        puts "\n#{field}:"
-        puts strings_in_columns("reference", reference)
-        alternative_results.each { |r| puts r }
+
+        scenario_messages =
+          values_by_scenario.map do |alternative_key, scenario_value|
+            emoji = scenario_value.to_f > reference_value.to_f ? "❌️" : "✅"
+            strings_in_columns(alternative_key, "#{scenario_value} #{emoji}")
+          end
+
+        puts "#{field}:"
+        puts strings_in_columns("reference", reference_value)
+        scenario_messages.each { |r| puts r }
       end
 
       def plan_value(scenario, query_fingerprint, plan_field)
