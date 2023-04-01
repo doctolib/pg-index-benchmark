@@ -8,11 +8,18 @@ module PgIndexBenchmark
         @table_name = options[:table_name]
       end
       def validate_config
-        if @table_name&.empty? || @file_path&.empty?
-          raise "Missing table_name or source_file. Check help"
+        if (@table_name.nil? || @table_name&.empty?)
+          raise "Missing table_name. Check help."
+        end
+        if (@file_path&.empty?)
+          raise 'Missing query source file. Check help.'
+        end
+        if (!File.exist?(@file_path))
+          raise "#{@file_path} does not exists."
         end
         self
       end
+
       def run
         read_query_count = 0
         unique_fingerprint = Set.new

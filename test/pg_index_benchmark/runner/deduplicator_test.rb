@@ -5,49 +5,74 @@ require_relative "../../test_helper.rb"
 module PgIndexBenchmark
   module Runner
     class DeduplicatorTest < Minitest::Test
-      def test_simple_case
-        table_to_consider = :some_table
-        queries = [
-          "SELECT 1 from some_table;",
-          "SELECT 2 from some_table;",
-          "SELECT 1 from other_table;"
-        ]
-        expected_dedup = ["SELECT 1 from some_table;"]
-        run_dedup(table_to_consider, queries, expected_dedup)
+      INPUT_FILE = "test/pg_index_benchmark/fixtures/duplicate_queries.sql"
+      OUTPUT_FILE =
+        "test/pg_index_benchmark/fixtures/duplicate_queries.unique.sql"
+
+      def teardown
+        File.delete(OUTPUT_FILE) if File.exist?(OUTPUT_FILE)
       end
 
-      def test_more_complex_cases
-        table_to_consider = :books
-        queries = [
-          "SELECT count(*) from books;",
-          "SELECT book, store from books where title = 'Lord of the ring';",
-          "SELECT book, store from books where title = 'Mastering PostgreSQL';",
-          "SELECT 1 from authors;"
-        ]
-        expected_dedup = [
-          "SELECT count(*) from books;",
-          "SELECT book, store from books where title = 'Lord of the ring';"
-        ]
-        run_dedup(table_to_consider, queries, expected_dedup)
-      end
-
-      private
-
-      def run_dedup(table_to_consider, queries, expected_dedup)
-        Tempfile.create("queries.sql") do |file|
-          queries.each { |query| file.write("#{query}\n") }
-          file.flush
+      describe "validation" do
+        it "test_validates_correct_config" do
           dedup =
-            Deduplicator.new(
-              { table_name: table_to_consider },
-              file.path
-            ).validate_config
-          dedup.run
-          puts dedup.output_path
-          assert_equal expected_dedup,
-                       File.read(dedup.output_path).lines(chomp: true)
+            PgIndexBenchmark::Runner::Deduplicator.new(
+              { table_name: "books" },
+              INPUT_FILE
+            )
+          dedup.validate_config
+        end
+
+        it "test_validates_raise_on_missing_query_filename" do
+          dedup =
+            PgIndexBenchmark::Runner::Deduplicator.new(
+              { table_name: "books" },
+              ""
+            )
+          e = assert_raises { dedup.validate_config }
+          assert_equal "Missing query source file. Check help.", e.message
+        end
+
+        it "test_validates_raise_on_invalid_filename" do
+          dedup =
+            PgIndexBenchmark::Runner::Deduplicator.new(
+              { table_name: "books" },
+              "not_existing_path"
+            )
+          e = assert_raises { dedup.validate_config }
+          assert_equal "not_existing_path does not exists.", e.message
+        end
+
+        it "test_validates_raise_on_missing_table_name" do
+          dedup = PgIndexBenchmark::Runner::Deduplicator.new({}, INPUT_FILE)
+          e = assert_raises { dedup.validate_config }
+          assert_equal "Missing table_name. Check help.", e.message
+        end
+      end
+
+      describe "deduplicator" do
+        it "runs successfully" do
+          expected_output = <<-MSG
+Unique queries will be put in test/pg_index_benchmark/fixtures/duplicate_queries.unique.sql
+Only queries using "books" table will be considered.
+Total 6 queries using (3 unique using books)
+Writing to test/pg_index_benchmark/fixtures/duplicate_queries.unique.sql...
+Done
+      MSG
+
+          dedup =
+            PgIndexBenchmark::Runner::Deduplicator.new(
+              { table_name: "books" },
+              INPUT_FILE
+            )
+          dedup.validate_config
+          assert_output(expected_output) { dedup.run }
+          assert FileUtils.compare_file(
+                   "test/pg_index_benchmark/fixtures/expected_deduplicate_queries.sql",
+                   OUTPUT_FILE
+                 )
         ensure
-          File.delete(dedup.output_path) if FileTest.exist?(dedup.output_path)
+          File.delete(OUTPUT_FILE) if File.exist?(OUTPUT_FILE)
         end
       end
     end
