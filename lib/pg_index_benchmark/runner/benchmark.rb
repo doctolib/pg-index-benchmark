@@ -7,7 +7,7 @@ module PgIndexBenchmark
         "Actual Total Time",
         "Total Cost",
         "Shared Hit Blocks",
-        "Shared Read Blocks",
+        "Shared Read Blocks"
       ].freeze
 
       def initialize(options, query_file_path)
@@ -90,7 +90,9 @@ module PgIndexBenchmark
 
       def report
         if @only_query_fingerprint
-          @all_query_plans_by_query[@only_query_fingerprint].each do |scenario, plan|
+          @all_query_plans_by_query[
+            @only_query_fingerprint
+          ].each do |scenario, plan|
             puts "---- Plan for #{scenario} ----\n#{plan}\n\n"
           end
           return
@@ -121,7 +123,6 @@ module PgIndexBenchmark
           (@scenarios.keys - ["reference"]).reject do |scenario|
             indexes_by_scenario[scenario] == indexes_by_scenario["reference"]
           end
-
         if impacted_scenarios.empty?
           @not_impacted_queries << fingerprint
           return
