@@ -25,6 +25,7 @@ GEM
     digest (3.1.1)
     google-protobuf (3.22.2-aarch64-linux)
     google-protobuf (3.22.2-arm64-darwin)
+    docile (1.4.0)
     google-protobuf (3.22.2-x86_64-linux)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
@@ -40,6 +41,12 @@ GEM
     rake (13.0.6)
     ruby2_keywords (0.0.5)
     set (1.0.3)
+    simplecov (0.22.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.12.3)
+    simplecov_json_formatter (0.1.4)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     yaml (0.2.1)
@@ -51,8 +58,9 @@ PLATFORMS
 
 DEPENDENCIES
   minitest (~> 5.16)
-  mocha (>= 2.0.2)
+  mocha (~> 2.0)
   pg_index_benchmark!
+  simplecov (~> 0.22)
 
 BUNDLED WITH
    2.3.7
