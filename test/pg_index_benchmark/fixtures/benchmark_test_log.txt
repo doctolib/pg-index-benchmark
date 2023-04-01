@@ -1,0 +1,23 @@
+
+- Playing scenario: reference
+  - Adding indexes to reference: books_price_idx books_available_title_idx
+  - Dropping 3 indexes: books_available_idx books_price_available_partial books_price_available_idx
+  - Running queries...
+Ignoring query not using books: SELECT * from agendas;
+Ignoring query not using books: SELECT * from authors;
+  - 4 queries run
+
+- Playing scenario: scenario1
+  - Adding indexes to reference: books_price_available_partial
+  - Dropping 4 indexes: books_price_idx books_available_title_idx books_available_idx books_price_available_idx
+  - Running queries...
+  - 4 queries run
+
+- Playing scenario: scenario2
+  - Adding indexes to reference: books_price_available_idx
+  - Dropping 4 indexes: books_price_idx books_available_title_idx books_available_idx books_price_available_partial
+  - Running queries...
+  - 4 queries run
+For these queries each scenario was using the same indexes: 38c05fde5124c8e9aaca17d53a95749832c72090 e59faaad902204b767049eda44825a2c4edba1a7 3cafb6bee2555d9c95e2eb89d04aacbc8ea16645 93f0c6f05ad7a248a72d1cf5df4ccf68c90b9eec
+
+To get the detailed execution plan for a specific query, use '-q QUERY_ID'

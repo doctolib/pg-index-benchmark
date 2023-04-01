@@ -191,13 +191,18 @@ MSG
         .stubs(:connection)
         .returns(fake_connection)
 
-      PgIndexBenchmark::Runner::Benchmark
-        .new(
+      benchmark =
+        PgIndexBenchmark::Runner::Benchmark.new(
           { config_path: "test/pg_index_benchmark/fixtures/config.yml" },
           "test/pg_index_benchmark/fixtures/duplicate_queries.sql"
         )
-        .validate_config
-        .run
+      benchmark.validate_config
+
+      expected_output =
+        File.readlines(
+          "test/pg_index_benchmark/fixtures/benchmark_test_log.txt"
+        ).join("")
+      assert_output(expected_output) { benchmark.run }
 
       missing_calls = fake_connection.remaining_expectations
       assert_empty missing_calls,
