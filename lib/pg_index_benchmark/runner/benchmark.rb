@@ -110,11 +110,11 @@ module PgIndexBenchmark
       def report_for_query(fingerprint)
         indexes_by_scenario = {}
         query_text = @queries_by_fingerprint[fingerprint]
-        all_query_plans_for_query = @all_query_plans_by_query[fingerprint]
         @scenarios.each_key do |scenario|
           indexes_by_scenario[scenario] = used_indexes(
-            all_query_plans_for_query[scenario].to_s
-          ).sort.join(", ")
+            fingerprint,
+            scenario
+          ).join(", ")
         end
 
         impacted_scenarios =
@@ -133,9 +133,9 @@ module PgIndexBenchmark
         puts "----------------------------------------------------"
         puts "Query #{fingerprint}:"
         puts query_text.to_s
-        puts "Returned rows: #{all_query_plans_for_query["reference"]["Actual Rows"]}"
+        puts "Returned rows: #{plan_value("reference", fingerprint, "Actual Rows")}"
         EXPLAIN_PLAN_FIELDS_TO_EXTRACT.each do |field|
-          compare_plan_results(impacted_scenarios, all_query_plans_for_query, field)
+          compare_plan_results(impacted_scenarios, fingerprint, field)
         end
 
         puts
@@ -155,8 +155,10 @@ module PgIndexBenchmark
         Digest::SHA1.hexdigest(query)
       end
 
-      def used_indexes(execution_plan)
-        execution_plan.scan(/"Index Name"=>"(\w+)"/)
+      def used_indexes(query_fingerprint, scenario)
+        execution_plan =
+          @all_query_plans_by_query[query_fingerprint][scenario].to_s
+        execution_plan.scan(/"Index Name"=>"(\w+)"/).sort
       end
 
       def strings_in_columns(column1, column2)
@@ -284,15 +286,17 @@ module PgIndexBenchmark
               raw_plan(query_text)
             end
           )
-        @all_query_plans_by_query[fingerprint] = {} unless @all_query_plans_by_query.key?(fingerprint)
+        @all_query_plans_by_query[fingerprint] = {
+        } unless @all_query_plans_by_query.key?(fingerprint)
         @all_query_plans_by_query[fingerprint][scenario] = plan
       end
 
-      def compare_plan_results(impacted_scenarios, query_plans, field)
-        reference = query_plans["reference"][field]
+      def compare_plan_results(impacted_scenarios, query_fingerprint, field)
+        reference = plan_value("reference", query_fingerprint, field)
         alternative_results = []
         impacted_scenarios.each do |alternative_key|
-          alternative_result = query_plans[alternative_key][field]
+          alternative_result =
+            plan_value(alternative_key, query_fingerprint, field)
           emoji = alternative_result.to_f > reference.to_f ? "❌️" : "✅"
           alternative_results << strings_in_columns(
             alternative_key,
@@ -305,7 +309,7 @@ module PgIndexBenchmark
       end
 
       def plan_value(scenario, query_fingerprint, plan_field)
-        @all_query_plans_by_query[query_fingerprint][scenario][plan_field]
+        @all_query_plans_by_query.dig(query_fingerprint, scenario, plan_field)
       end
     end
   end
