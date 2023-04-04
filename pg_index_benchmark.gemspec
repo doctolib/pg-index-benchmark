@@ -28,6 +28,8 @@ DESCRIPTION
   s.add_runtime_dependency('pg_query', '>= 2.2.0', '< 3.0')
   s.add_runtime_dependency('set', '>= 1.0.3', '< 2.0')
   s.add_runtime_dependency('yaml', '>= 0.2.0', '< 1.0')
-  s.add_runtime_dependency('minitest', '~> 5.16')
   s.add_runtime_dependency('rake', '~> 13.0')
+  s.add_development_dependency('minitest', '~> 5.16')
+  s.add_development_dependency('mocha', '~> 2.0')
+  s.add_development_dependency('simplecov', '~> 0.22')
 end

@@ -7,8 +7,7 @@ module PgIndexBenchmark
         "Actual Total Time",
         "Total Cost",
         "Shared Hit Blocks",
-        "Shared Read Blocks",
-        "Actual Rows"
+        "Shared Read Blocks"
       ].freeze
 
       def initialize(options, query_file_path)
@@ -28,7 +27,7 @@ module PgIndexBenchmark
           related_query = query_to_run(@only_query_fingerprint)
         end
 
-        @scenarios.each_key do |scenario_key|
+        scenarios.each_key do |scenario_key|
           STDOUT.flush
           benchmark(scenario_key, related_query)
         end
@@ -38,8 +37,16 @@ module PgIndexBenchmark
 
       private
 
+      def scenarios
+        @scenarios
+      end
+
+      def scenario_names
+        @scenarios.keys
+      end
+
       def init_benchmark_results
-        @result_plans = {}
+        @all_query_plans_by_query = {}
         @queries_by_fingerprint = {}
         @queries_run_in_scenario = 0
         @not_impacted_queries = []
@@ -91,7 +98,9 @@ module PgIndexBenchmark
 
       def report
         if @only_query_fingerprint
-          @result_plans[@only_query_fingerprint].each do |scenario, plan|
+          @all_query_plans_by_query[
+            @only_query_fingerprint
+          ].each do |scenario, plan|
             puts "---- Plan for #{scenario} ----\n#{plan}\n\n"
           end
           return
@@ -111,31 +120,31 @@ module PgIndexBenchmark
       def report_for_query(fingerprint)
         indexes_by_scenario = {}
         query_text = @queries_by_fingerprint[fingerprint]
-        plans_for_query = @result_plans[fingerprint]
-        @scenarios.each_key do |scenario|
+        scenarios.each_key do |scenario|
           indexes_by_scenario[scenario] = used_indexes(
-            plans_for_query[scenario].to_s
-          ).sort.join(", ")
+            fingerprint,
+            scenario
+          ).join(", ")
         end
 
         impacted_scenarios =
-          (@scenarios.keys - ["reference"]).reject do |scenario|
-            indexes_by_scenario[scenario] == indexes_by_scenario["reference"]
+          (scenario_names - [:reference]).reject do |scenario|
+            indexes_by_scenario[scenario] == indexes_by_scenario[:reference]
           end
-
         if impacted_scenarios.empty?
           @not_impacted_queries << fingerprint
           return
         end
 
-        scenarios_to_display = ["reference"] + impacted_scenarios
-        not_impacted_scenarios = @scenarios.keys - scenarios_to_display
+        scenarios_to_display = [:reference] + impacted_scenarios
+        not_impacted_scenarios = scenario_names - scenarios_to_display
 
         puts "----------------------------------------------------"
         puts "Query #{fingerprint}:"
         puts query_text.to_s
+        puts "Returned rows: #{plan_value(:reference, fingerprint, "Actual Rows")}"
         EXPLAIN_PLAN_FIELDS_TO_EXTRACT.each do |field|
-          compare_plan_results(impacted_scenarios, plans_for_query, field)
+          compare_plan_results(impacted_scenarios, fingerprint, field)
         end
 
         puts
@@ -155,12 +164,14 @@ module PgIndexBenchmark
         Digest::SHA1.hexdigest(query)
       end
 
-      def used_indexes(execution_plan)
-        execution_plan.scan(/"Index Name"=>"(\w+)"/)
+      def used_indexes(query_fingerprint, scenario)
+        execution_plan =
+          @all_query_plans_by_query[query_fingerprint][scenario].to_s
+        execution_plan.scan(/"Index Name"=>"(\w+)"/).sort
       end
 
       def strings_in_columns(column1, column2)
-        @column_length ||= @scenarios.keys.map(&:length).max + 1
+        @column_length ||= scenario_names.map(&:length).max + 1
         "  #{column1.to_s.ljust(@column_length, " ")} #{column2}"
       end
 
@@ -260,7 +271,7 @@ module PgIndexBenchmark
       def run_query_for_scenario(scenario, query_text, format = :json)
         tables = PgQuery.parse(query_text).tables
         unless tables.include?(@table_name)
-          if scenario == "reference"
+          if scenario == :reference
             puts "Ignoring query not using #{@table_name}: #{query_text}"
           end
           return
@@ -284,28 +295,45 @@ module PgIndexBenchmark
               raw_plan(query_text)
             end
           )
-        @result_plans[fingerprint] = {} unless @result_plans.key?(fingerprint)
-        @result_plans[fingerprint][scenario] = plan
+        @all_query_plans_by_query[fingerprint] = {
+        } unless @all_query_plans_by_query.key?(fingerprint)
+        @all_query_plans_by_query[fingerprint][scenario] = plan
       end
 
-      def compare_plan_results(impacted_scenarios, query_hash, field)
-        reference = query_hash["reference"][field]
-        alternative_results = []
-        impacted_scenarios.each do |alternative_key|
-          alternative_result = query_hash[alternative_key][field]
-          emoji = alternative_result.to_f > reference.to_f ? "❌️" : "✅"
-          alternative_results << strings_in_columns(
-            alternative_key,
-            "#{alternative_result} #{emoji}"
-          )
+      def compare_plan_results(impacted_scenarios, query_fingerprint, field)
+        reference_value = plan_value(:reference, query_fingerprint, field)
+        values_by_scenario =
+          impacted_scenarios
+            .map do |alternative_key|
+              [
+                alternative_key,
+                plan_value(alternative_key, query_fingerprint, field)
+              ]
+            end
+            .to_h
+
+        puts ""
+        if values_by_scenario
+             .values
+             .reject { |scenario_value| scenario_value == reference_value }
+             .empty?
+          puts "#{field}: #{reference_value} (same for all scenarios)"
+          return
         end
-        puts "\n#{field}:"
-        puts strings_in_columns("reference", reference)
-        alternative_results.each { |r| puts r }
+
+        scenario_messages =
+          values_by_scenario.map do |alternative_key, scenario_value|
+            emoji = scenario_value.to_f > reference_value.to_f ? "❌️" : "✅"
+            strings_in_columns(alternative_key, "#{scenario_value} #{emoji}")
+          end
+
+        puts "#{field}:"
+        puts strings_in_columns(:reference, reference_value)
+        scenario_messages.each { |r| puts r }
       end
 
       def plan_value(scenario, query_fingerprint, plan_field)
-        @result_plans[query_fingerprint][scenario][plan_field]
+        @all_query_plans_by_query.dig(query_fingerprint, scenario, plan_field)
       end
     end
   end

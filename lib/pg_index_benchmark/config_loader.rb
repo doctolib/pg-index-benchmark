@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'yaml'
+require "yaml"
 module PgIndexBenchmark
   class ConfigLoader
     attr_accessor :input_file_path,
@@ -26,7 +26,7 @@ module PgIndexBenchmark
     end
 
     def scenarios
-      @config["scenarios"] || []
+      @config["scenarios"].transform_keys(&:to_sym) || {}
     end
 
     def table_name
@@ -38,7 +38,7 @@ module PgIndexBenchmark
       unless common_indexes
         puts "Warning: no common_indexes are defined in config file"
       end
-      unless scenarios["reference"]
+      unless scenarios[:reference]
         puts "Warning: no indexes are defined for reference scenario in config file"
       end
       raise "Config: Missing table_name at root level" unless table_name

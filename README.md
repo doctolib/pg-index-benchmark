@@ -114,32 +114,35 @@ Connecting to postgres@db:5432/postgres ...
   - 5 queries run
 ...
 ----------------------------------------------------
-Query 9602a2c952652489ab7b813a3beabd058a0e0556:
+Query 253795ba00c957ac21eefdab3a695b330b96b9f4:
 SELECT count(*) from books where price > 75 and available = true;
+Returned rows: 1
 
 Actual Total Time:
-  reference  188.837
-  scenario1  227.165 ❌️
-  scenario2  79.717 ✅
-  scenario3  86.325 ✅
-  scenario4  423.53 ❌️
-  scenario5  62.63 ✅
+  reference  71.321
+  scenario1  144.874 ❌️
+  scenario2  31.284 ✅
+  scenario3  37.687 ✅
+  scenario4  135.207 ❌️
+  scenario5  31.505 ✅
 
 Total Cost:
-  reference  29102.26
-  scenario1  44399.16 ❌️
-  scenario2  27665.02 ✅
-  scenario3  22028.95 ✅
-  scenario4  44399.16 ❌️
-  scenario5  22028.95 ✅
+  reference  25261.14
+  scenario1  40972.37 ❌️
+  scenario2  23838.37 ✅
+  scenario3  18527.4 ✅
+  scenario4  40972.37 ❌️
+  scenario5  18527.4 ✅
 
 Shared Hit Blocks:
-  reference  19577
-  scenario1  19159 ✅
-  scenario2  19715 ❌️
-  scenario3  19248 ✅
-  scenario4  19159 ✅
-  scenario5  19248 ✅
+  reference  16069
+  scenario1  15729 ✅
+  scenario2  16124 ❌️
+  scenario3  15788 ✅
+  scenario4  15729 ✅
+  scenario5  15788 ✅
+
+Shared Read Blocks: 0 (same for all scenarios)
 
 Used indexes:
   reference  books_available_idx
@@ -148,7 +151,7 @@ Used indexes:
   scenario3  books_available_price_idx
   scenario4  
   scenario5  books_available_price_idx
-...
+
 ```
 
 Detailed view for a specific query:
