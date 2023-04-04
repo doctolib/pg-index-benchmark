@@ -71,8 +71,6 @@ Done
                    "test/pg_index_benchmark/fixtures/expected_deduplicate_queries.sql",
                    OUTPUT_FILE
                  )
-        ensure
-          File.delete(OUTPUT_FILE) if File.exist?(OUTPUT_FILE)
         end
       end
     end
