@@ -100,18 +100,20 @@ POSTGRES_DATABASE=mydb POSTGRES_USER=$USER pg-index-benchmark -c /host_files/ind
 
 Standard execution:
 ```text
+These indexes will be kept for each scenario: books_pkey
+
 - Playing scenario: reference
-Connecting to postgres@db:5432/postgres ...
-  - Adding indexes to reference: books_price_idx books_available_title_idx books_available_idx
-  - Dropping 4 indexes: books_price_available_partial books_price_available_idx books_available_price_idx books_title_idx
-  - Running queries (2 times each)...
-  - 5 queries run
+  Connecting to postgres@db:5432/postgres ...
+  Required indexes: books_price_idx books_available_title_idx books_available_idx
+  🚮 Dropping 4 indexes: books_price_available_partial books_price_available_idx books_available_price_idx books_title_idx
+  🚀 Running queries (2 times each)...
+  ✔️ 5 queries run
 
 - Playing scenario: scenario1
-  - Adding indexes to reference: books_price_available_partial
-  - Dropping 6 indexes: books_price_idx books_available_title_idx books_available_idx books_price_available_idx books_available_price_idx books_title_idx
-  - Running queries (2 times each)...
-  - 5 queries run
+  Required indexes: books_price_available_partial
+  🚮 Dropping 6 indexes: books_price_idx books_available_title_idx books_available_idx books_price_available_idx books_available_price_idx books_title_idx
+  🚀 Running queries (2 times each)...
+  ✔️ 5 queries run
 ...
 ----------------------------------------------------
 Query 253795ba00c957ac21eefdab3a695b330b96b9f4:
