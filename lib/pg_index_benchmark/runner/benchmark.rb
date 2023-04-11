@@ -27,6 +27,8 @@ module PgIndexBenchmark
           related_query = query_to_run(@only_query_fingerprint)
         end
 
+        puts "These indexes will be kept for each scenario: #{@common_indexes.join(', ')}"
+
         scenarios.each_key do |scenario_key|
           STDOUT.flush
           benchmark(scenario_key, related_query)
@@ -178,7 +180,7 @@ module PgIndexBenchmark
       def connection
         @connection ||=
           begin
-            puts "Connecting to #{@db_user}@#{@db_host}:#{@db_port}/#{@db_name} ..."
+            puts "  Connecting to #{@db_user}@#{@db_host}:#{@db_port}/#{@db_name} ..."
             PG.connect(
               host: @db_host,
               port: @db_port,
@@ -220,7 +222,7 @@ module PgIndexBenchmark
       end
 
       def drop_indexes(indexes)
-        puts "  - Dropping #{indexes.size} indexes: #{indexes.join(" ")}"
+        puts "  🚮 Dropping #{indexes.size} indexes: #{indexes.join(" ")}"
         indexes.each do |index|
           connection.exec("DROP INDEX IF EXISTS \"#{index}\";")
         end
@@ -235,9 +237,9 @@ module PgIndexBenchmark
         if only_query_text.nil?
           puts (
                  if @query_prerun_count > 0
-                   "  - Running queries (#{@query_prerun_count + 1} times each)..."
+                   "  🚀 Running queries (#{@query_prerun_count + 1} times each)..."
                  else
-                   "  - Running queries..."
+                   "  🚀 Running queries..."
                  end
                )
           @queries_run_in_scenario = 0
@@ -253,7 +255,7 @@ module PgIndexBenchmark
           if @queries_run_in_scenario == 0
             raise "Error: no valid queries found in #{@input_file_path}. Make sure queries are valid and end with ';'"
           end
-          puts "  - #{@queries_run_in_scenario} queries run"
+          puts "  ✔️ #{@queries_run_in_scenario} queries run"
         else
           run_query_for_scenario(scenario, only_query_text, :raw)
         end
@@ -262,7 +264,7 @@ module PgIndexBenchmark
 
       def indexes_to_drop(scenario)
         scenario_indexes_to_keep = @scenarios[scenario] || []
-        puts "  - Adding indexes to reference: #{scenario_indexes_to_keep.join(" ")}"
+        puts "  Required indexes: #{scenario_indexes_to_keep.join(" ")}"
         existing_indexes(@table_name)
           .reject { |index| @common_indexes.include?(index) }
           .reject { |index| scenario_indexes_to_keep.include?(index) }
