@@ -25,7 +25,7 @@ DESCRIPTION
   s.add_runtime_dependency('json', '>= 2.6.2', '< 3.0')
   s.add_runtime_dependency('optparse', '>= 0.2.0', '< 1.0')
   s.add_runtime_dependency('pg', '>= 1.4.5', '< 2.0')
-  s.add_runtime_dependency('pg_query', '>= 2.2.0', '< 3.0')
+  s.add_runtime_dependency('pg_query', '>= 4.0', '< 7.0')
   s.add_runtime_dependency('set', '>= 1.0.3', '< 2.0')
   s.add_runtime_dependency('yaml', '>= 0.2.0', '< 1.0')
   s.add_runtime_dependency('rake', '~> 13.0')
