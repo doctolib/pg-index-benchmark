@@ -47,7 +47,7 @@ GEM
       rake (~> 13.3)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    json (2.21.0)
+    json (2.21.1)
     logger (1.7.0)
     minitest (5.27.0)
     mocha (2.8.2)
