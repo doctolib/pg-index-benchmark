@@ -1,4 +1,4 @@
-FROM ruby:3.4.8
+FROM ruby:3.4.10@sha256:a9d6c36be5d7bc09d275b6df5eba2e98db2e35fcfe132f1fd23cddd91e2d674b
 WORKDIR /usr/src/app
 
 ADD Gemfile Gemfile.lock pg_index_benchmark.gemspec /usr/src/app/
