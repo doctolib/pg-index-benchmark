@@ -17,7 +17,7 @@ services:
       POSTGRES_HOST: db
     command: [ "-c", "/host_files/config.yml", "-n", "1", "/host_files/queries.sql" ]
   db:
-    image: postgres:alpine
+    image: postgres:alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
     command: ['postgres', '-c', 'max_wal_senders=0', '-c', 'wal_level=minimal', '-c', 'shared_buffers=512MB', '-c', 'max_wal_size=10GB']
     environment:
       POSTGRES_PASSWORD: demo_pwd
